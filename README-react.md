@@ -6,10 +6,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `PUBLIC_URL=/proxy/X000`and `npm run build` then `npx --yes serve -s build -l X000` Preview SPA
+### `PUBLIC_URL=/proxy/5000`and `npm run build` then `npx --yes serve -s build -l 5000`
 
 if running / viewing from codeserver and not on a local machine.
-Replace `X`with port number, 5,4,3...etc
+
 #### integration test 
 run `REACT_APP_API_BASE=/proxy/8081/api` first
 

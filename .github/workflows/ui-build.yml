@@ -1,0 +1,46 @@
+name: UI — Build Image (local runner)
+
+on:
+  push:
+    branches: [ staging, main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: [self-hosted, Linux, X64, ui]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set tag by branch (staging vs prod)
+        id: tagenv
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "tag=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Short SHA
+        id: vars
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build (load into local Docker on runner)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: |
+            portfolio-ui:${{ steps.tagenv.outputs.tag }}
+            portfolio-ui:sha-${{ steps.vars.outputs.short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

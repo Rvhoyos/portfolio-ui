@@ -1,4 +1,4 @@
-name: UI — Build Image (local runner)
+name: UI — Build & Deploy (local runner)
 
 on:
   push:
@@ -44,3 +44,43 @@ jobs:
             portfolio-ui:sha-${{ steps.vars.outputs.short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy — staging
+    runs-on: [self-hosted, Linux, X64, ui]
+    needs: build
+    if: github.ref_name == 'staging'
+
+    steps:
+      - name: Ensure Caddy edge network exists (quacked-wiki_webnet)
+        run: |
+          docker network inspect quacked-wiki_webnet >/dev/null 2>&1 || {
+            echo "ERROR: Docker network 'quacked-wiki_webnet' not found. Aborting." >&2
+            exit 1
+          }
+
+      - name: Write compose and bring up stack
+        run: |
+          sudo mkdir -p /opt/portfolio-ui
+          sudo chown "$USER":"$USER" /opt/portfolio-ui
+
+          cat > /opt/portfolio-ui/docker-compose.yml <<'YAML'
+          services:
+            ui:
+              image: portfolio-ui:staging
+              container_name: portfolio-ui-staging
+              restart: unless-stopped
+              networks:
+                - webnet
+
+          networks:
+            webnet:
+              external: true
+              name: quacked-wiki_webnet
+          YAML
+
+          cd /opt/portfolio-ui
+          docker compose up -d --force-recreate
+
+      - name: Show running containers (staging)
+        run: docker ps --filter "name=portfolio-ui-staging" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"

@@ -1,0 +1,45 @@
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/charts
+**/docker-compose*
+**/compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/obj
+**/secrets.dev.yaml
+**/values.dev.yaml
+LICENSE
+README.md
+README-react.md
+# Dependencies & build output
+node_modules
+build
+# VCS
+.git
+.gitignore
+# Logs & caches
+npm-debug.log*
+yarn-error.log*
+.pnpm-store
+.eslintcache
+.stylelintcache
+# Editor/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Env (local-only; don’t bake into images)
+.env*
+!.env.example

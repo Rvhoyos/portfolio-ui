@@ -1,0 +1,10 @@
+services:
+  portfolioui:
+    image: portfolioui
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    # Local preview only: open https://<code-server-host>/proxy/5001/
+    ports:
+      - "5001:80"
+    # No env/volumes/command: nginx serves the static build baked by the Dockerfile

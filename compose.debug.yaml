@@ -1,0 +1,11 @@
+services:
+  portfolioui:
+    image: portfolioui:debug
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        # For code-server preview at /proxy/5002/
+        PUBLIC_URL: /proxy/5002
+    ports:
+      - "5002:80"

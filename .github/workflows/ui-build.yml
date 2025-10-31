@@ -50,6 +50,9 @@ jobs:
     runs-on: [self-hosted, Linux, X64, ui]
     needs: build
     if: github.ref_name == 'staging'
+    environment:
+      name: staging
+      url: https://staging.raulhoyos.com
 
     steps:
       - name: Ensure Caddy edge network exists (quacked-wiki_webnet)
@@ -84,11 +87,15 @@ jobs:
 
       - name: Show running containers (staging)
         run: docker ps --filter "name=portfolio-ui-staging" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+
   deploy-prod:
     name: Deploy — prod
     runs-on: [self-hosted, Linux, X64, ui]
     needs: build
     if: github.ref_name == 'main'
+    environment:
+      name: prod
+      url: https://raulhoyos.com
 
     steps:
       - name: Ensure Caddy edge network exists (quacked-wiki_webnet)

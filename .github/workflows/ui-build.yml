@@ -84,3 +84,42 @@ jobs:
 
       - name: Show running containers (staging)
         run: docker ps --filter "name=portfolio-ui-staging" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+  deploy-prod:
+    name: Deploy — prod
+    runs-on: [self-hosted, Linux, X64, ui]
+    needs: build
+    if: github.ref_name == 'main'
+
+    steps:
+      - name: Ensure Caddy edge network exists (quacked-wiki_webnet)
+        run: |
+          docker network inspect quacked-wiki_webnet >/dev/null 2>&1 || {
+            echo "ERROR: Docker network 'quacked-wiki_webnet' not found. Aborting." >&2
+            exit 1
+          }
+
+      - name: Write compose and bring up stack
+        run: |
+          sudo mkdir -p /opt/portfolio-ui-prod
+          sudo chown "$USER":"$USER" /opt/portfolio-ui-prod
+
+          cat > /opt/portfolio-ui-prod/docker-compose.yml <<'YAML'
+          services:
+            ui:
+              image: portfolio-ui:prod
+              container_name: portfolio-ui-prod
+              restart: unless-stopped
+              networks:
+                - webnet
+
+          networks:
+            webnet:
+              external: true
+              name: quacked-wiki_webnet
+          YAML
+
+          cd /opt/portfolio-ui-prod
+          docker compose up -d --force-recreate
+
+      - name: Show running containers (prod)
+        run: docker ps --filter "name=portfolio-ui-prod" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"

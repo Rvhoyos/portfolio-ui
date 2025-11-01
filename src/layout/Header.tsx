@@ -19,8 +19,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto w-full max-w-7xl px-4 h-14 flex items-center gap-3">
-        <a href="#" className="font-semibold tracking-tight">Raul Hoyos</a>
+      <div className="mx-auto w-full max-w-7xl px-4 h-12 flex items-center gap-2">
+        <a href="#" className="font-semibold tracking-tight text-sm md:text-base">Raul Hoyos</a>
 
         {/* Desktop nav */}
         <nav className="ml-auto hidden md:block">
@@ -28,7 +28,7 @@ export function Header() {
             <NavigationMenuList>
               {links.map(l => (
                 <NavigationMenuItem key={l.href}>
-                  <NavigationMenuLink href={l.href} className="px-3 py-2">
+                  <NavigationMenuLink href={l.href} className="px-2 py-1.5 text-sm">
                     {l.label}
                   </NavigationMenuLink>
                 </NavigationMenuItem>

@@ -22,75 +22,76 @@ const services: Service[] = [
     title: "Marketing Sites and Landing Pages",
     tagline: "Publish fast, rank well, and keep costs low.",
     blurb:
-      "Static or prebuilt pages rendered ahead of time and cached at the edge. Ideal for product pages, documentation, and blogs. Forms, search, and gated content are integrated without a long running application server.",
+      "Pages are prebuilt at deploy and served quickly worldwide. Perfect for product pages, documentation, and blogs. Forms, search, and gated content work without running a full-time app server.",
     bullets: [
-      "Prebuilt pages with search engine friendly markup",
-      "Edge caching and image optimization",
-      "Contact forms and consent aware analytics",
+      "Fast prebuilt pages",
+      "Image optimization and caching",
+      "Contact forms and consent-aware analytics",
     ],
     cta: { label: "Start a project", href: "?service=ssg#contact" },
   },
   {
     title: "SaaS Web App",
-    tagline: "App-like experience in the browser, powered by your existing backend or a new platform API.",
+    tagline: "App-like experience in the browser, backed by your existing or a new API.",
     blurb:
-      "Client-rendered single-page application that communicates with a secure API—either your current backend or a new one we build. Stateless token authentication with short-lived access tokens and a refresh token stored in an HttpOnly, Secure cookie. Role-based access. Strict validation on every request.",
+      "A client-rendered app that talks to a secure backend. Great for dashboards, tools, and signed-in experiences. Includes sign-in, roles, and careful validation on every request.",
     bullets: [
-      "Client rendered app with protected routes",
-      "REST or GraphQL API with schema and versioning",
-      "Automated tests, logging with request IDs, rate limits",
+      "Protected areas and accounts",
+      "Clear API with versioning",
+      "Monitoring and safeguards",
     ],
     cta: { label: "Start a project", href: "?service=spa#contact" },
   },
   {
     title: "Personalized Web App (Server-Rendered)",
-    tagline: "Strong SEO with server-rendered pages.",
+    tagline: "Personalized pages with a fast first view.",
     blurb:
-      "Server-rendered single-page app. The server returns HTML for each request, then hydrates client interactions. Sessions live in a shared store so any replica can serve any user. Content Security Policy with per-request nonces. Forms use server-generated anti-CSRF tokens.",
+      "Pages are produced on the server for each request, then become interactive in the browser. Ideal when what you show depends on who’s viewing (accounts, portals, catalogs).",
     bullets: [
-      "Server rendered routes with hydration",
-      "Session storage in Redis or equivalent shared store",
-      "Security headers including CSP, HSTS, and Referrer Policy",
+      "Server-produced pages, interactive after load",
+      "Centralized sessions for signed-in users",
+      "Safe forms and security headers",
     ],
     cta: { label: "Start a project", href: "?service=ssr#contact" },
   },
   {
     title: "Platform Integrations and APIs",
-    tagline: "Clean endpoints with documentation and clear SLAs.",
+    tagline: "Connect systems and expose clean endpoints.",
     blurb:
-      "Design and build REST or GraphQL endpoints with typed contracts and a plan for schema changes. Auth via tokens or signed requests with strong validation and idempotency where needed. Great fit when adding an API to an existing product or launching a new backend service.",
+      "Design and build endpoints with clear contracts. A good fit for adding an API to an existing product or launching a new backend service.",
     bullets: [
-      "OpenAPI or GraphQL schema and human readable docs",
-      "Rate limits and error taxonomy",
-      "Observability with traces and logs",
+      "Human-readable docs",
+      "Fair usage limits and clear errors",
+      "Logs and tracing to debug issues",
     ],
     cta: { label: "Start a project", href: "?service=apis#contact" },
   },
   {
     title: "Managed Cloud and DevOps",
-    tagline: "Provisioning, monitoring, backups, and release management.",
+    tagline: "Run, monitor, and back up your software.",
     blurb:
-      "Cloud-agnostic deployment with containers and scripted infrastructure. Centralized logging and metrics. Backups with tested restore. I can also install and operate open-source tools your team relies on (wikis, monitoring, automation, dashboards).",
+      "Set up environments, deploy reliably, and keep an eye on health. Backups are tested. I can also install and operate open-source tools your team uses (wikis, monitoring, automation, self-hosted action runner, codeserver..etc).",
     bullets: [
-      "Environment setup with secrets and configuration",
-      "Log and metric collection with alerts",
-      "Backup schedule and restore drill",
+      "Environment setup with secrets and config",
+      "Logs, metrics, and alerts",
+      "Backup schedule with restore drills",
     ],
     cta: { label: "Start a project", href: "?service=devops#contact" },
   },
   {
     title: "Kubernetes Readiness and Scaling",
-    tagline: "Run multiple copies across machines with safe rollouts.",
+    tagline: "Be ready for traffic and safe rollouts.",
     blurb:
-      "Production setup for apps that need multiple copies. Ingress handles public traffic, Services balance requests, and Deployments keep the right number of replicas up. Readiness checks only send traffic when ready; liveness checks auto-restart stuck copies. Rolling updates swap versions without downtime.",
+      "Run several copies across machines, send requests only to healthy ones, and roll out updates gradually without taking the app down.",
     bullets: [
-      "Two replicas standard with readiness and liveness",
-      "Graceful shutdown and connection draining",
-      "Resource requests and limits to prevent noisy neighbors",
+      "Two copies by default with health checks",
+      "Graceful shutdown during deploys",
+      "Resource limits to avoid noisy neighbors",
     ],
     cta: { label: "Start a project", href: "?service=kubernetes#contact" },
   },
 ]
+
 
 
 
@@ -437,7 +438,7 @@ export function Services() {
       </AccordionTrigger>
       <AccordionContent className="px-5 pb-5 text-sm text-muted-foreground">
         <p>
-          <strong>Server-Rendered SPA:</strong> strong SEO and great first paint with hydration for interactivity.
+          <strong>Server-Rendered SPA:</strong> strong SEO and fast first view with hydration for interactivity.
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -460,7 +461,7 @@ export function Services() {
           <div>
             <div className="mb-1 font-medium text-foreground/90">You’ll get</div>
             <ul className="list-disc pl-4">
-              <li>Fast first paint for public routes.</li>
+              <li>Fast fast first view for public routes.</li>
               <li>Server-generated pages with safe, stateful actions.</li>
               <li>Caching options for speed (full pages or fragments).</li>
             </ul>

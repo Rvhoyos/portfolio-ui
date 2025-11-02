@@ -16,6 +16,10 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
+
+const API_ENDPOINT = "/api/contact/lead"
 
 export function Contact() {
   // store the slug, not the human label
@@ -23,6 +27,9 @@ export function Contact() {
   const [timeline, setTimeline] = useState<string>("")
   const [budget, setBudget] = useState<string>("")
   const [msg, setMsg] = useState<string>("")
+  const [submitting, setSubmitting] = useState(false)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const MSG_LIMIT = 1000
 
   // Slug -> human label (must align with Services links)
@@ -96,6 +103,73 @@ export function Contact() {
     }
   }, [prefillFromUrl])
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError(null)
+    setSuccess(null)
+
+    const form = e.currentTarget
+    const fd = new FormData(form)
+
+    // Honeypot — if filled, pretend success but do nothing
+    const honey = (fd.get("company_website") as string) || ""
+    if (honey.trim().length > 0) {
+      setSuccess("Thanks — message received.")
+      form.reset()
+      setInterestSlug("")
+      setTimeline("")
+      setBudget("")
+      setMsg("")
+      return
+    }
+
+    const payload = {
+      name: (fd.get("name") as string)?.trim(),
+      email: (fd.get("email") as string)?.trim(),
+      org: (fd.get("org") as string)?.trim() || null,
+      interestSlug: interestSlug || null,
+      interest: interestLabel || null,
+      timeline: timeline || null,
+      budget: budget || null,
+      message: msg.trim(),
+      meta: {
+        path: typeof window !== "undefined" ? window.location.pathname : "",
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        timestamp: new Date().toISOString(),
+      },
+    }
+
+    if (!payload.name || !payload.email || !payload.message) {
+      setError("Please fill in your name, email, and a short project summary.")
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const res = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "")
+        throw new Error(text || `Request failed with ${res.status}`)
+      }
+
+      setSuccess("Thanks — your message was sent. I’ll get back to you shortly.")
+      form.reset()
+      setInterestSlug("")
+      setTimeline("")
+      setBudget("")
+      setMsg("")
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong while sending your message.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <section id="contact" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
@@ -104,7 +178,21 @@ export function Contact() {
           Modern web apps and platforms with enterprise proven infrastructure.
         </p>
 
-        <form className="mt-6 grid gap-4 sm:max-w-xl" method="post">
+        {/* Status messages */}
+        {success && (
+          <Alert className="mt-4 border-emerald-500/40">
+            <AlertTitle>Message sent</AlertTitle>
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+        {error && (
+          <Alert className="mt-4 border-destructive/40">
+            <AlertTitle>Couldn’t send</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <form className="mt-6 grid gap-4 sm:max-w-xl" method="post" onSubmit={handleSubmit} aria-busy={submitting}>
           {/* basic anti-spam honeypot (ignored when wiring later) */}
           <input type="text" name="company_website" className="hidden" tabIndex={-1} autoComplete="off" />
 
@@ -130,7 +218,7 @@ export function Contact() {
           {/* Service of interest */}
           <div className="grid gap-1.5">
             <Label>Service of interest (optional)</Label>
-            <Select value={interestSlug} onValueChange={setInterestSlug}>
+            <Select value={interestSlug} onValueChange={setInterestSlug} disabled={submitting}>
               <SelectTrigger>
                 <SelectValue placeholder="Choose a service (optional)" />
               </SelectTrigger>
@@ -151,7 +239,7 @@ export function Contact() {
           {/* Timeline */}
           <div className="grid gap-1.5">
             <Label>Timeline (optional)</Label>
-            <Select value={timeline} onValueChange={setTimeline}>
+            <Select value={timeline} onValueChange={setTimeline} disabled={submitting}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a rough timeline" />
               </SelectTrigger>
@@ -169,7 +257,7 @@ export function Contact() {
           {/* Budget */}
           <div className="grid gap-1.5">
             <Label>Budget (optional)</Label>
-            <Select value={budget} onValueChange={setBudget}>
+            <Select value={budget} onValueChange={setBudget} disabled={submitting}>
               <SelectTrigger>
                 <SelectValue placeholder="Pick a range (CAD)" />
               </SelectTrigger>
@@ -198,6 +286,7 @@ export function Contact() {
               value={msg}
               onChange={(e) => setMsg(e.target.value)}
               required
+              disabled={submitting}
             />
             <div className="flex items-center justify-end text-xs text-muted-foreground" aria-live="polite">
               {msg.length}/{MSG_LIMIT}
@@ -208,7 +297,7 @@ export function Contact() {
           <Accordion type="single" collapsible className="mt-1">
             <AccordionItem value="privacy">
               <AccordionTrigger className="text-xs text-muted-foreground">
-                Privacy & compliance details
+                Privacy &amp; compliance details
               </AccordionTrigger>
               <AccordionContent>
                 <div className="text-xs text-muted-foreground">
@@ -221,7 +310,16 @@ export function Contact() {
           </Accordion>
 
           <div className="mt-4">
-            <Button type="button">Start a project</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Sending…
+                </span>
+              ) : (
+                "Start a project"
+              )}
+            </Button>
           </div>
         </form>
       </div>

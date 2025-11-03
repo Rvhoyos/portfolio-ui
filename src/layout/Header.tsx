@@ -157,7 +157,7 @@ export function Header() {
                           className={[
                             "relative rounded-full px-2 py-1.5 text-sm transition-colors",
                             isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
-                            "hover:text-foreground", // simple, subtle hover no underline
+                            "hover:text-foreground",
                           ].join(" ")}
                         >
                           {l.label}
@@ -169,7 +169,7 @@ export function Header() {
               </NavigationMenu>
             </nav>
 
-            {/* Theme toggle + Client Area */}
+            {/* Theme toggle + Client Area (desktop) */}
             <div className="hidden md:flex items-center gap-2">
               <Button
                 size="icon"
@@ -200,44 +200,58 @@ export function Header() {
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-72">
-                  <div className="px-2 py-2 space-y-1">
-                    {links.map(({ href, label, Icon }) => {
-                      const isActive = active && href === `#${active}`
-                      return (
-                        <a
-                          key={href}
-                          href={href}
-                          onClick={() => setOpen(false)}
-                          className={[
-                            "flex items-center gap-2 rounded px-2 py-2 transition-colors",
-                            "hover:bg-muted/70 dark:hover:bg-muted/40",
-                            isActive ? "bg-primary/10 dark:bg-primary/15" : "",
-                          ].join(" ")}
+
+                {/* Full-height, scroll-safe mobile sheet */}
+                <SheetContent side="right" className="w-72 p-0">
+                  <div className="flex h-[100dvh] flex-col">
+                    {/* Scrollable body */}
+                    <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+                      {links.map(({ href, label, Icon }) => {
+                        const isActive = active && href === `#${active}`
+                        return (
+                          <a
+                            key={href}
+                            href={href}
+                            onClick={() => setOpen(false)}
+                            className={[
+                              "flex items-center gap-2 rounded px-2 py-2 transition-colors",
+                              "hover:bg-muted/70 dark:hover:bg-muted/40",
+                              isActive ? "bg-primary/10 dark:bg-primary/15" : "",
+                            ].join(" ")}
+                          >
+                            {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
+                            <span>{label}</span>
+                          </a>
+                        )
+                      })}
+
+                      <Separator className="my-3" />
+                    </div>
+
+                    {/* Sticky footer with safe-area padding so CTA never gets clipped */}
+                    <div className="sticky bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur px-2 py-2
+                                    pb-[max(env(safe-area-inset-bottom,0px),0.5rem)]">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          className="shrink-0"
+                          type="button"
+                          onClick={toggle}
+                          aria-label="Toggle theme"
                         >
-                          {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
-                          <span>{label}</span>
-                        </a>
-                      )
-                    })}
+                          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        </Button>
 
-                    <Separator className="my-3" />
-
-                    {/* Mobile theme toggle + CTA row */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        className="shrink-0"
-                        type="button"
-                        onClick={toggle}
-                        aria-label="Toggle theme"
-                      >
-                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      </Button>
-                      <Button className="w-full" type="button" onClick={() => { setSoonOpen(true); setOpen(false) }} aria-label="Client Area">
-                        Client Area
-                      </Button>
+                        <Button
+                          className="w-full"
+                          type="button"
+                          onClick={() => { setSoonOpen(true); setOpen(false) }}
+                          aria-label="Client Area"
+                        >
+                          Client Area
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </SheetContent>

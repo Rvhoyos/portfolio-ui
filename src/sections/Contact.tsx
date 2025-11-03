@@ -111,10 +111,10 @@ export function Contact() {
     const form = e.currentTarget
     const fd = new FormData(form)
 
-    // Honeypot — if filled, pretend success but do nothing
+    // Honeypot if filled, pretend success but do nothing
     const honey = (fd.get("company_website") as string) || ""
     if (honey.trim().length > 0) {
-      setSuccess("Thanks — message received.")
+      setSuccess("Thanks message received.")
       form.reset()
       setInterestSlug("")
       setTimeline("")
@@ -157,7 +157,7 @@ export function Contact() {
         throw new Error(text || `Request failed with ${res.status}`)
       }
 
-      setSuccess("Thanks — your message was sent. I’ll get back to you shortly.")
+      setSuccess("Thanks your message was sent. I’ll get back to you shortly.")
       form.reset()
       setInterestSlug("")
       setTimeline("")

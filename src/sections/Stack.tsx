@@ -14,8 +14,35 @@ import {
   LineChart,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
 
 type BucketItem = string | { label: string; desc?: string }
+
+/* -------- minimal, layout-safe reveal helper -------- */
+function Reveal({
+  children,
+  y = 12,
+  delay = 0,
+  amount = 0.6,
+}: {
+  children: React.ReactNode
+  y?: number
+  delay?: number
+  amount?: number
+}) {
+  const prefersReduced = useReducedMotion()
+  if (prefersReduced) return <>{children}</>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount }}
+      transition={{ duration: 0.28, ease: "easeOut", delay }}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 /**
  * Order: service-oriented first, supporting/assurance last.
@@ -112,14 +139,27 @@ export function Stack() {
   return (
     <section id="stack" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Stack</h2>
-        <p className="mt-2 text-muted-foreground">
-          Tools and practices I use day-to-day—what your build will actually ship with.
-        </p>
+        <Reveal>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+              <span className="relative inline-block">
+                Stack
+                <span aria-hidden className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0" />
+              </span>
+            </span>
+          </h2>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <p className="mt-2 text-muted-foreground">
+            Tools and practices I use day-to-day and what your build can ship with.
+          </p>
+        </Reveal>
 
         <Tabs defaultValue="Frontend" className="mt-6">
-          {/* Consistent, button-like triggers with horizontal scroll on small screens */}
-          <TabsList className="flex overflow-x-auto gap-2 sm:flex-wrap">
+          {/* Pills: wrap by default; single row on lg+ (unchanged for mobile safety) */}
+          <TabsList className="h-auto flex-wrap gap-2 justify-start max-w-full md:flex-wrap lg:h-10 lg:flex-nowrap">
             {Object.keys(buckets).map((k) => (
               <TabsTrigger key={k} value={k} className="whitespace-nowrap rounded-full">
                 {k}
@@ -131,37 +171,57 @@ export function Stack() {
             const Icon = bucketIcons[k] ?? CheckCircle2
             return (
               <TabsContent key={k} value={k} className="mt-6">
-                <Card className="border-border/70">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 opacity-70" aria-hidden="true" />
-                        <CardTitle className="text-base">{k}</CardTitle>
+                <Reveal>
+                  <Card className="border-border/70">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4 opacity-70" aria-hidden="true" />
+                          <CardTitle className="text-base">{k}</CardTitle>
+                        </div>
+                        <Badge variant="secondary">{items.length} items</Badge>
                       </div>
-                      <Badge variant="secondary">{items.length} items</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {items.map((item) => {
-                        const data = typeof item === "string" ? { label: item } : item
-                        return (
-                          <div key={data.label} className="rounded-lg border border-border/60 bg-muted/30 p-3">
-                            <div className="flex items-start gap-3">
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 opacity-70" aria-hidden="true" />
-                              <div>
-                                <div className="text-sm font-medium">{data.label}</div>
-                                {data.desc ? (
-                                  <p className="text-xs text-muted-foreground">{data.desc}</p>
-                                ) : null}
+                    </CardHeader>
+                    <CardContent>
+                      {/* Row-cascade grid: staggered fade-up (does not affect layout/wrap) */}
+                      <motion.div
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, amount: 0.3 }}
+                        variants={{
+                          hidden: {},
+                          show: { transition: { staggerChildren: 0.06 } },
+                        }}
+                        className="grid gap-3 sm:grid-cols-2"
+                      >
+                        {items.map((item) => {
+                          const data = typeof item === "string" ? { label: item } : item
+                          return (
+                            <motion.div
+                              key={data.label}
+                              variants={{
+                                hidden: { opacity: 0, y: 10 },
+                                show: { opacity: 1, y: 0 },
+                              }}
+                              transition={{ duration: 0.24, ease: "easeOut" }}
+                              className="rounded-lg border border-border/60 bg-muted/30 p-3"
+                            >
+                              <div className="flex items-start gap-3">
+                                <CheckCircle2 className="mt-0.5 h-4 w-4 opacity-70" aria-hidden="true" />
+                                <div>
+                                  <div className="text-sm font-medium">{data.label}</div>
+                                  {data.desc ? (
+                                    <p className="text-xs text-muted-foreground">{data.desc}</p>
+                                  ) : null}
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                            </motion.div>
+                          )
+                        })}
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </Reveal>
               </TabsContent>
             )
           })}

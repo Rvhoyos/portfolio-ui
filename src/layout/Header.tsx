@@ -202,10 +202,18 @@ export function Header() {
                 </SheetTrigger>
 
                 {/* Full-height, scroll-safe mobile sheet */}
-                <SheetContent side="right" className="w-72 p-0">
-                  <div className="flex h-[100dvh] flex-col">
-                    {/* Scrollable body */}
-                    <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+                <SheetContent
+                  side="right"
+                  className="p-0 w-[min(20rem,calc(100vw-12px))] sm:w-72" /* never exceed viewport */
+                >
+                  <div className="flex h-[100dvh] flex-col overflow-x-hidden">
+                    {/* Scrollable body with safe-area horizontal padding */}
+                    <div
+                      className="flex-1 overflow-y-auto space-y-1
+                                 px-3 pt-2 pb-3
+                                 pr-[max(env(safe-area-inset-right,0px),0.75rem)]
+                                 pl-[max(env(safe-area-inset-left,0px),0.75rem)]"
+                    >
                       {links.map(({ href, label, Icon }) => {
                         const isActive = active && href === `#${active}`
                         return (
@@ -220,7 +228,7 @@ export function Header() {
                             ].join(" ")}
                           >
                             {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
-                            <span>{label}</span>
+                            <span className="min-w-0">{label}</span>
                           </a>
                         )
                       })}
@@ -228,9 +236,14 @@ export function Header() {
                       <Separator className="my-3" />
                     </div>
 
-                    {/* Sticky footer with safe-area padding so CTA never gets clipped */}
-                    <div className="sticky bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur px-2 py-2
-                                    pb-[max(env(safe-area-inset-bottom,0px),0.5rem)]">
+                    {/* Sticky footer with safe-area + consistent padding so CTA never clips */}
+                    <div
+                      className="sticky bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur
+                                 px-3 pt-2
+                                 pb-[max(env(safe-area-inset-bottom,0px),0.75rem)]
+                                 pr-[max(env(safe-area-inset-right,0px),0.75rem)]
+                                 pl-[max(env(safe-area-inset-left,0px),0.75rem)]"
+                    >
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
@@ -244,7 +257,7 @@ export function Header() {
                         </Button>
 
                         <Button
-                          className="w-full"
+                          className="w-full h-9 text-sm"
                           type="button"
                           onClick={() => { setSoonOpen(true); setOpen(false) }}
                           aria-label="Client Area"

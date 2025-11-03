@@ -256,7 +256,7 @@ export function Header() {
               </DialogDescription>
             </DialogHeader>
             <div className="text-sm text-muted-foreground">
-              You’ll be able to review proposals, track deployments, and export data here.
+              You’ll be able to review proposals, track deployments, and manage billing.
             </div>
             <DialogFooter>
               <Button type="button" onClick={() => setSoonOpen(false)}>Okay</Button>

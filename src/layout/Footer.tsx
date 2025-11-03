@@ -95,15 +95,40 @@ export function Footer() {
 
           <Separator className="my-4" />
 
-          {/* Bottom: small print (standard, compact)      */}
+          {/* Bottom: small print (standard, compact) */}
           <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>© {year} Raul Hoyos. All rights reserved.</span>
             <div className="flex flex-wrap items-center gap-3">
-              <a href="/privacy" className="hover:text-foreground">Privacy</a>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a href="/privacy" className="hover:text-foreground">Privacy</a>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">
+                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages up to 12 to 24 months or deleted on request.
+                </TooltipContent>
+              </Tooltip>
+
               <span aria-hidden>•</span>
-              <a href="/terms" className="hover:text-foreground">Terms</a>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a href="/terms" className="hover:text-foreground">Terms</a>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">
+                  Use the site lawfully. No scraping abuse or attacks. Content is provided as is. Liability is limited as allowed by law. Ontario Canada governs.
+                </TooltipContent>
+              </Tooltip>
+
               <span aria-hidden>•</span>
-              <a href="/cookies" className="hover:text-foreground">Cookies</a>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <a href="/cookies" className="hover:text-foreground">Cookies</a>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-xs">
+                  I only use essential cookies by default. I do not set third party tracking cookies. If I add analytics later you can choose.
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </div>

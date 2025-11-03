@@ -21,6 +21,10 @@ import { Loader2 } from "lucide-react"
 
 const API_ENDPOINT = "/api/contact/lead"
 
+// Human-tempo guardrails (client-side only; server will enforce later)
+const MIN_T_MS = 1500           // reject if user submits faster than this
+const MAX_T_MS = 2 * 60 * 60 * 1000 // also reject if the tab was left open "forever"
+
 export function Contact() {
   // store the slug, not the human label
   const [interestSlug, setInterestSlug] = useState<string>("")
@@ -31,6 +35,13 @@ export function Contact() {
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const MSG_LIMIT = 1000
+
+  // timestamp when the form first renders (used for human-tempo check)
+  const [renderedAt, setRenderedAt] = useState<number>(() => Date.now())
+  useEffect(() => {
+    // ensure mounted timestamp (SSR safety)
+    setRenderedAt(Date.now())
+  }, [])
 
   // Slug -> human label (must align with Services links)
   const SERVICE_LABELS: Record<string, string> = {
@@ -120,6 +131,21 @@ export function Contact() {
       setTimeline("")
       setBudget("")
       setMsg("")
+      // refresh renderedAt for a future legitimate submit
+      setRenderedAt(Date.now())
+      return
+    }
+
+    const clientSubmittedAt = Date.now()
+    const tookMs = clientSubmittedAt - renderedAt
+
+    // Client-side human-tempo guard (server will mirror later)
+    if (tookMs < MIN_T_MS) {
+      setError("That was too fast. Please review your message and try again.")
+      return
+    }
+    if (tookMs > MAX_T_MS) {
+      setError("Your form sat open a long time. Please refresh and try again.")
       return
     }
 
@@ -136,6 +162,9 @@ export function Contact() {
         path: typeof window !== "undefined" ? window.location.pathname : "",
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
         timestamp: new Date().toISOString(),
+        renderedAt,               // epoch ms
+        clientSubmittedAt,        // epoch ms
+        tookMs,                   // client-perceived time to submit
       },
     }
 
@@ -148,7 +177,11 @@ export function Contact() {
       setSubmitting(true)
       const res = await fetch(API_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // extra hint for future server-side origin checks
+          "X-Client-Origin": typeof window !== "undefined" ? window.location.origin : "",
+        },
         body: JSON.stringify(payload),
       })
 
@@ -163,6 +196,7 @@ export function Contact() {
       setTimeline("")
       setBudget("")
       setMsg("")
+      setRenderedAt(Date.now()) // reset timer for a future submit
     } catch (err: any) {
       setError(err?.message || "Something went wrong while sending your message.")
     } finally {
@@ -193,8 +227,17 @@ export function Contact() {
         )}
 
         <form className="mt-6 grid gap-4 sm:max-w-xl" method="post" onSubmit={handleSubmit} aria-busy={submitting}>
-          {/* basic anti-spam honeypot (ignored when wiring later) */}
-          <input type="text" name="company_website" className="hidden" tabIndex={-1} autoComplete="off" />
+          {/* Honeypot: present in DOM but visually off-screen (not display:none) */}
+          <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden>
+            <Label htmlFor="company_website">Company website</Label>
+            <Input
+              id="company_website"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              placeholder="Do not fill"
+            />
+          </div>
 
           <div className="grid gap-1.5">
             <Label htmlFor="name">

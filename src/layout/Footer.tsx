@@ -95,7 +95,7 @@ export function Footer() {
 
           <Separator className="my-4" />
 
-          {/* Bottom: small print (standard, compact)   */}
+          {/* Bottom: small print (standard, compact)      */}
           <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>© {year} Raul Hoyos. All rights reserved.</span>
             <div className="flex flex-wrap items-center gap-3">

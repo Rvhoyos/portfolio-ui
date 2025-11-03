@@ -1,13 +1,16 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Newspaper, LayoutDashboard, Server, Webhook } from "lucide-react"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { XCircle, Clock, Wallet, Users } from "lucide-react"
 import { GitBranch, Activity, RefreshCw } from "lucide-react"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { ChevronDown } from "lucide-react"
 
 type Service = {
   title: string
@@ -99,9 +102,19 @@ export function Services() {
   return (
     <section id="services" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Services</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+            <span className="relative inline-block">
+              Services
+              <span aria-hidden className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0" />
+            </span>
+          </span>
+        </h2>
+
         <p className="mt-2 text-muted-foreground">
-          Pick the outcome you need. Every build includes staging and production environments, health checks, and a zero downtime release plan.
+          Pick the outcome you need.    
+          Choose from the following Dev or IT/Ops services.  
         </p>
 
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -111,11 +124,11 @@ export function Services() {
                 <CardTitle className="text-base">{s.title}</CardTitle>
                 <CardDescription>{s.tagline}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 min-w-0">
                 <p className="text-sm text-muted-foreground">{s.blurb}</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 md:gap-2 justify-start">
                   {s.bullets.map((b) => (
-                    <Badge key={b} variant="secondary">
+                    <Badge key={b} variant="secondary" className="rounded-full whitespace-nowrap">
                       {b}
                     </Badge>
                   ))}
@@ -130,192 +143,267 @@ export function Services() {
           ))}
         </div>
 
-      {/* Included in every build */}
-      <div className="mt-10">
-        <Card className="border-border/70 bg-muted/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Included in every build</CardTitle>
-            <CardDescription>Baseline reliability and safe releases—no extra add-on required.</CardDescription>
-          </CardHeader>
+        {/* Included in every build */}
+        <div className="mt-10">
+          <Card className="border-border/70 bg-muted/40">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Included in every build</CardTitle>
+              <CardDescription>Baseline reliability and safe releases—no extra add-on required.</CardDescription>
+            </CardHeader>
 
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {/* Staging & production */}
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <div className="cursor-help rounded-lg border border-border/60 bg-background p-4">
-                    <div className="flex items-start gap-3">
-                      <GitBranch className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Staging &amp; production</div>
-                        <p className="text-xs text-muted-foreground">Test safely in an environment that mirrors live.</p>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {/* Staging & production */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="w-full text-left rounded-lg border border-border/60 bg-background p-4 transition
+                                hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                      aria-label="Staging & production — details"
+                    >
+                      <div className="flex items-start gap-3">
+                        <GitBranch className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
+                        <div>
+                          <div className="text-sm font-medium text-foreground">Staging &amp; production</div>
+                          <p className="text-xs text-muted-foreground">Test safely in an environment that mirrors live.</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80 text-xs">
-                  Two environments with a clear promotion path and change history so releases stay predictable.
-                </HoverCardContent>
-              </HoverCard>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-xs">
+                    Two environments with a clear promotion path and change history so releases stay predictable.
+                  </PopoverContent>
+                </Popover>
 
-              {/* Health checks */}
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <div className="cursor-help rounded-lg border border-border/60 bg-background p-4">
-                    <div className="flex items-start gap-3">
-                      <Activity className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Health checks</div>
-                        <p className="text-xs text-muted-foreground">Liveness &amp; readiness endpoints wired into deploys.</p>
+                {/* Health checks */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="w-full text-left rounded-lg border border-border/60 bg-background p-4 transition
+                                hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                      aria-label="Health checks — details"
+                    >
+                      <div className="flex items-start gap-3">
+                        <Activity className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
+                        <div>
+                          <div className="text-sm font-medium text-foreground">Health checks</div>
+                          <p className="text-xs text-muted-foreground">Liveness &amp; readiness endpoints wired into deploys.</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80 text-xs">
-                  Small HTTP endpoints by default—no extra services. Liveness checks the process; readiness verifies dependencies so only healthy versions get traffic.
-                </HoverCardContent>
-              </HoverCard>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-xs">
+                    Small HTTP endpoints by default—no extra services. Liveness checks the process; readiness verifies dependencies so only healthy versions get traffic.
+                  </PopoverContent>
+                </Popover>
 
-              {/* Zero-downtime release plan */}
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <div className="cursor-help rounded-lg border border-border/60 bg-background p-4">
-                    <div className="flex items-start gap-3">
-                      <RefreshCw className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
-                      <div>
-                        <div className="text-sm font-medium text-foreground">Zero-downtime releases</div>
-                        <p className="text-xs text-muted-foreground">Swap versions behind health gates with rollback ready.</p>
+                {/* Zero-downtime releases */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="w-full text-left rounded-lg border border-border/60 bg-background p-4 transition
+                                hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                      aria-label="Zero-downtime releases — details"
+                    >
+                      <div className="flex items-start gap-3">
+                        <RefreshCw className="mt-0.5 h-4 w-4 opacity-70" aria-hidden />
+                        <div>
+                          <div className="text-sm font-medium text-foreground">Zero-downtime releases</div>
+                          <p className="text-xs text-muted-foreground">Swap versions behind health gates with rollback ready.</p>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent className="w-80 text-xs">
-                  Bring up the new version alongside the current one, verify health, switch over, and keep instant rollback on standby. On Kubernetes this uses rolling updates.
-                </HoverCardContent>
-              </HoverCard>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-xs">
+                    Bring up the new version alongside the current one, verify health, switch over, and keep instant rollback on standby. On Kubernetes this uses rolling updates.
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Popular add-ons */}
+        <div className="mt-6">
+          <Card className="border-border/70 bg-muted/40">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Popular Add-Ons</CardTitle>
+              <CardDescription>Optional capabilities grouped by dev and ops.</CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              {(() => {
+                type AddOn = {
+                  label: string
+                  short: string
+                  detail: string
+                  category: "dev" | "ops"
+                }
+
+                const popularAddOns: AddOn[] = [
+                  // Product & Dev
+                  {
+                    label: "User accounts with MFA and audit log",
+                    short: "Secure sign-in & activity trails.",
+                    detail:
+                      "Extra sign-in step (e.g., TOTP/WebAuthn) and a tamper-resistant record of key actions (sign-ins, role changes).",
+                    category: "dev",
+                  },
+                  {
+                    label: "Feature flags & experiments",
+                    short: "Ship safely & test ideas.",
+                    detail:
+                      "Turn features on/off per user or percentage. Safely A/B test variants without redeploying the app.",
+                    category: "dev",
+                  },
+                  {
+                    label: "Data export / import & retention",
+                    short: "Onboarding & compliance friendly.",
+                    detail:
+                      "Built for legacy onboarding and compliance: users can export (CSV/JSON), admins can bulk-import, and retention rules support PIPEDA/GDPR.",
+                    category: "dev",
+                  },
+                  {
+                    label: "Editorial workflow (draft, review, publish)",
+                    short: "Non-dev friendly content changes.",
+                    detail:
+                      "Draft → review → approve → publish with roles, history, and rollback for safe content operations.",
+                    category: "dev",
+                  },
+
+                  // Ops & Quality
+                  {
+                    label: "API keys & rate limits",
+                    short: "Control access & prevent abuse.",
+                    detail:
+                      "Per-client tokens with quotas/rotation. Prevent abuse with request limits and structured request IDs.",
+                    category: "ops",
+                  },
+                  {
+                    label: "SLO dashboards & error budgets",
+                    short: "Track reliability and pace releases.",
+                    detail:
+                      "Monitor latency/availability against targets. Error budgets guide release velocity vs reliability.",
+                    category: "ops",
+                  },
+                  {
+                    label: "Load test & capacity plan",
+                    short: "Know limits before launch.",
+                    detail:
+                      "Simulate traffic to locate bottlenecks and estimate headroom (instances needed) before growth.",
+                    category: "ops",
+                  },
+                ]
+
+                const dev = popularAddOns.filter(a => a.category === "dev")
+                const ops = popularAddOns.filter(a => a.category === "ops")
+
+                const Tile = ({ item }: { item: AddOn }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-full text-left rounded-lg border border-border/60 bg-background p-4 transition
+                                  hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        aria-label={`${item.label} — details`}
+                      >
+                        <div className="text-sm font-medium">{item.label}</div>
+                        <p className="mt-1 text-xs text-muted-foreground">{item.short}</p>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 text-xs">{item.detail}</PopoverContent>
+                  </Popover>
+                )
+
+                return (
+                  <Tabs defaultValue="dev" className="mt-1">
+                    <TabsList className="h-auto flex-wrap gap-2 justify-start max-w-full md:flex-wrap lg:h-10 lg:flex-nowrap">
+                      <TabsTrigger value="dev" className="rounded-full">Dev</TabsTrigger>
+                      <TabsTrigger value="ops" className="rounded-full">Ops</TabsTrigger>
+                    </TabsList>
+
+                    {/* Product & Dev */}
+                    <TabsContent value="dev" className="mt-4">
+                      {(() => {
+                        const hasMore = dev.length > 3
+                        return (
+                          <Collapsible>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                              {dev.slice(0, 3).map(item => <Tile key={item.label} item={item} />)}
+                            </div>
+
+                            {hasMore && (
+                              <>
+                                <CollapsibleContent>
+                                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {dev.slice(3).map(item => <Tile key={item.label} item={item} />)}
+                                  </div>
+                                </CollapsibleContent>
+
+                                <div className="mt-3">
+                                  <CollapsibleTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="group inline-flex items-center gap-1">
+                                      <span>Show all ({dev.length})</span>
+                                      <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                </div>
+                              </>
+                            )}
+                          </Collapsible>
+                        )
+                      })()}
+                    </TabsContent>
+
+                    {/* Ops & Quality */}
+                    <TabsContent value="ops" className="mt-4">
+                      {(() => {
+                        const hasMore = ops.length > 3
+                        return (
+                          <Collapsible>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                              {ops.slice(0, 3).map(item => <Tile key={item.label} item={item} />)}
+                            </div>
+
+                            {hasMore && (
+                              <>
+                                <CollapsibleContent>
+                                  <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {ops.slice(3).map(item => <Tile key={item.label} item={item} />)}
+                                  </div>
+                                </CollapsibleContent>
+
+                                <div className="mt-3">
+                                  <CollapsibleTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="group inline-flex items-center gap-1">
+                                      <span>Show all ({ops.length})</span>
+                                      <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                </div>
+                              </>
+                            )}
+                          </Collapsible>
+                        )
+                      })()}
+                    </TabsContent>
+                  </Tabs>
+                )
+              })()}
+            </CardContent>
+          </Card>
+        </div>
 
 
 
-      {/* Popular add-ons */}
-      <div className="mt-6 rounded-xl border border-border bg-muted/30 p-5">
-        <h3 className="text-lg font-medium">Popular Add-Ons</h3>
-        <ul className="mt-3 grid list-disc gap-1 pl-5 text-sm text-muted-foreground sm:grid-cols-2">
-          {/* SaaS bundle — first four */}
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  User accounts with MFA and audit log
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Extra sign-in step (e.g., TOTP/WebAuthn) and a tamper-resistant record of key actions (sign-ins, role changes).
-              </HoverCardContent>
-            </HoverCard>
-          </li>
 
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  Feature flags &amp; experiments
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Turn features on/off per user or percentage. Safely A/B test variants without redeploying the app.
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  SLO dashboards &amp; error budgets
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Track reliability and latency against targets. The “error budget” is how much failure you can afford before slowing releases.
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  Data export / import &amp; retention
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Built for legacy onboarding and compliance: users can get their data out (CSV/JSON), admins can
-                bulk-import and retention rules meet portability/erasure expectations (PIPEDA/GDPR..etc).
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-
-
-          {/* Additional add-ons you control */}
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  API keys &amp; rate limits
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Per-client tokens with quotas and rotation. Prevent abuse with request limits and structured request IDs.
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  Editorial workflow (draft, review, publish)
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Non-developers can edit content safely: draft → review → approve → publish, with roles, history, and rollback.
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-
-          <li>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-help underline decoration-dotted underline-offset-4">
-                  Load test &amp; capacity plan
-                </span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80 text-xs">
-                Simulate traffic to find bottlenecks and estimate headroom (instances needed) before launch or growth.
-              </HoverCardContent>
-            </HoverCard>
-          </li>
-        </ul>
-
-        {/* Optional note (kept small and non-promotional) */}
-        <p className="mt-3 text-xs text-muted-foreground">
-          Rolling updates are included for Kubernetes builds.
-        </p>
-      </div>
-
-
-
-{/* Which service is right for you? */}
-<div className="mt-6 rounded-2xl border border-border/70 bg-background p-0 shadow-sm">
-  <div className="border-b border-border/60 px-5 py-4">
-    <h3 className="text-lg font-medium">Which service is right for you?</h3>
-    <p className="mt-1 text-sm text-muted-foreground">
-      A quick chooser—written for non-technical buyers. Expand to see typical fits, what you’ll get, and trade-offs.
-    </p>
-  </div>
+        {/* Which service is right for you? */}
+        <div className="mt-6 rounded-2xl border border-border/70 bg-background p-0 shadow-sm">
+          <div className="border-b border-border/60 px-5 py-4">
+            <h3 className="text-lg font-medium">Which service is right for you?</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A quick chooser—written for non-technical buyers. Expand to see typical fits, what you’ll get, and trade-offs.
+            </p>
+          </div>
 
   <Accordion type="single" collapsible>
     {/* Static / Prebuilt */}

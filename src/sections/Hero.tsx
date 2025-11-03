@@ -44,11 +44,7 @@ export function Hero() {
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           {/* Left: copy */}
           <div>
-            <div className="inline-flex">
-              <Badge variant="secondary" className="rounded-full">Consulting &amp; Engineering</Badge>
-            </div>
-
-            <h1 className="mt-3 text-4xl md:text-5xl font-semibold leading-tight tracking-tight">
+            <h1 className="text-4xl md:text-5xl mt-0 font-semibold leading-tight tracking-tight">
               Design. Build. Ship.
             </h1>
 
@@ -59,6 +55,10 @@ export function Hero() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild><a href="#contact">Start a project</a></Button>
               <Button asChild variant="outline"><a href="#services">View services</a></Button>
+            </div>
+
+            <div className="mt-6 inline-flex">
+              <Badge variant="secondary" className="rounded-full">Consulting &amp; Engineering</Badge>
             </div>
           </div>
 

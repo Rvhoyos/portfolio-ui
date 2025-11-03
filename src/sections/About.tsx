@@ -4,7 +4,7 @@ import { Code2, Server, GitBranch, RefreshCw, Activity, ShieldCheck } from "luci
 
 export function About() {
   const focus = [
-    { label: "React for client rendered experiences", desc: "Modern UI with fast navigation.", Icon: Code2 },
+    { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
     { label: "Spring for APIs and services", desc: "Typed contracts, validation, and versioned endpoints.", Icon: Server },
     { label: "Automated CI and CD to staging and production", desc: "Every change rolls out safely with rollbacks ready.", Icon: GitBranch },
   ] as const
@@ -41,10 +41,6 @@ export function About() {
             <strong>Scalable </strong> <strong>software</strong> when you need it.
           </p>
         </div>
-
-
-
-
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {/* Focus */}

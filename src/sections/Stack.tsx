@@ -112,14 +112,22 @@ export function Stack() {
   return (
     <section id="stack" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Stack</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+            <span className="relative inline-block">
+              Stack
+              <span aria-hidden className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0" />
+            </span>
+          </span>
+        </h2>
         <p className="mt-2 text-muted-foreground">
-          Tools and practices I use day-to-day—what your build will actually ship with.
+          Tools and practices I use day-to-day and what your build can ship with.
         </p>
 
         <Tabs defaultValue="Frontend" className="mt-6">
-          {/* Consistent, button-like triggers with horizontal scroll on small screens */}
-          <TabsList className="flex overflow-x-auto gap-2 sm:flex-wrap">
+          {/* Pills: wrap by default; single row on lg+ */}
+          <TabsList className="h-auto flex-wrap gap-2 justify-start max-w-full md:flex-wrap lg:h-10 lg:flex-nowrap">
             {Object.keys(buckets).map((k) => (
               <TabsTrigger key={k} value={k} className="whitespace-nowrap rounded-full">
                 {k}

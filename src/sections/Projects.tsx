@@ -1,7 +1,11 @@
+import { useState } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { ExternalLink } from "lucide-react"
+import { SiGithub } from "@icons-pack/react-simple-icons"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Carousel,
   CarouselContent,
@@ -13,52 +17,139 @@ import {
 type Project = {
   title: string
   desc: string
-  img: string
-  tech: string[]
-  highlights: string[]
+  img?: string
+  links?: {
+    github?: string
+    live?: string
+  }
 }
 
 const projects: Project[] = [
   {
     title: "Portfolio API",
     desc:
-      "Spring Boot 3 (Java 25) service that powers the site. PostgreSQL with Flyway migrations, versioned REST endpoints, and request-scoped structured logs. Built on a self-hosted GitHub Actions runner and promoted from staging to production behind Caddy with zero-downtime rolling updates gated by /livez and /readyz.",
+      "Spring Boot 3 (Java 25) service that powers the site. PostgreSQL with Flyway migrations.",
     img: "https://via.placeholder.com/1200x675?text=API",
-    tech: ["Spring Boot 3", "Java 25", "PostgreSQL", "Flyway", "JPA/Hibernate", "Docker", "Caddy", "GitHub Actions"],
-    highlights: ["Zero-downtime rolling deploys", "OpenAPI schema", "Request IDs & structured logs"],
+    links: { github: "https://github.com/rvhoyos/portfolio-api" },
   },
   {
     title: "Portfolio UI",
     desc:
-      "React + Vite + Tailwind + shadcn/ui. Prebuilt static site with clean OG/SEO metadata and consent-aware analytics. Served via nginx/Caddy, simple App Shell, and fast CI promotions to staging and production.",
+      "React + Vite + Tailwind + shadcn/ui. Client rendered SPA Served via nginx/Caddy, simple App Shell, and fast CI promotions to staging and production.",
     img: "https://via.placeholder.com/1200x675?text=Web",
-    tech: ["React", "Vite", "Tailwind", "shadcn/ui", "nginx", "Caddy"],
-    highlights: ["Edge-cacheable static build", "SEO & social metadata", "Fast CI rollouts"],
+    // adjust if your repo name differs (e.g., portfolio-web)
+    links: { github: "https://github.com/rvhoyos/portfolio-ui" },
   },
   {
     title: "QuackedMod",
     desc:
-      "Cross-platform Minecraft mod using Architectury + GeckoLib 5 with a custom Duck entity and bespoke animations. Automated Gradle builds and version management; public releases on major modding platforms (~300 downloads to date).",
+      "Cross-platform Minecraft mod using Architectury + GeckoLib 5 with a custom Duck entity and bespoke animations. Public releases on major modding platforms (~400 downloads to date).",
     img: "https://via.placeholder.com/1200x675?text=Mod",
-    tech: ["Java", "Architectury", "GeckoLib 5", "Fabric", "NeoForge", "Gradle", "Docker", "Caddy", "n8n"],
-    highlights: ["Automated builds & releases", "Ubuntu VPS (Docker + Caddy)", "Custom entity & animations"],
+    links: { github: "https://github.com/rvhoyos/QuackedMod" },
   },
   {
     title: "Smith Falls Airport — Passenger Flow Simulator",
     desc:
-      "Discrete-event simulation built in Python (SimPy) to evaluate airport operating policies. Uses queuing models and random variate generation for realistic arrivals and service times, with scenario-based performance analysis and visual reporting. Data handling in Pandas/NumPy; charts via Matplotlib.",
-    img: "https://via.placeholder.com/1200x675?text=Simulator",
-    tech: ["Python", "SimPy", "Pandas", "NumPy", "Matplotlib"],
-    highlights: ["Scenario analysis", "Random-variate arrivals/services", "Queue metrics (wait, throughput)"],
+      "Discrete-event simulation built in Python (SimPy) to evaluate airport operating policies. Uses queuing models and random variate generation for realistic arrivals and service times, with scenario-based performance analysis and visual reporting.",
+    // no image provided — card will show a consistent skeleton
+    links: { github: "https://github.com/Rvhoyos/A-DES-model-of-Airport-Passenger-Flow" },
   },
 ]
+
+function ProjectCard({ p }: { p: Project }) {
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const [imgError, setImgError] = useState(false)
+  const showRealImage = !!p.img && !imgError
+
+  return (
+    <Card className="overflow-hidden border-border/60 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <CardTitle className="text-base">{p.title}</CardTitle>
+          </div>
+
+          {/* Link buttons (render only if provided) */}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {p.links?.github && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild size="sm" variant="outline" className="h-8">
+                    <a href={p.links.github} target="_blank" rel="noreferrer">
+                      <SiGithub className="mr-1.5 h-3.5 w-3.5" />
+                      GitHub
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>GitHub</TooltipContent>
+              </Tooltip>
+            )}
+            {p.links?.live && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button asChild size="sm" variant="ghost" className="h-8">
+                    <a href={p.links.live} target="_blank" rel="noreferrer">
+                      <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                      Live
+                    </a>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Live demo</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </div>
+
+        <CardDescription className="mt-1 text-sm">{p.desc}</CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-3">
+        {/* Media: always render a neutral Skeleton on sm+; show image when it loads, else keep the Skeleton */}
+        <AspectRatio ratio={16 / 9} className="hidden sm:block rounded-md bg-transparent">
+          {showRealImage ? (
+            <>
+              {!imgLoaded && (
+                <Skeleton
+                  className="h-full w-full rounded-md animate-pulse bg-muted-foreground/20"
+                  aria-hidden
+                />
+              )}
+              <img
+                src={p.img}
+                alt={p.title}
+                className={`h-full w-full rounded-md object-cover ${imgLoaded ? "block" : "hidden"}`}
+                loading="lazy"
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgError(true)}
+              />
+            </>
+          ) : (
+            <Skeleton className="h-full w-full rounded-md animate-pulse bg-muted-foreground/20" aria-hidden />
+          )}
+        </AspectRatio>
+      </CardContent>
+    </Card>
+  )
+}
 
 export function Projects() {
   return (
     <section id="projects" className="border-t border-border">
-      <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <div className="rounded-2xl border border-border bg-muted/40 p-6 md:p-8">
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Projects</h2>
+      <div className="mx-auto w-full max-w-7xl px-4 pt-14 pb-10 md:pt-16 md:pb-12">
+        <div className="rounded-2xl border border-border bg-muted/40 px-6 md:px-8 pt-6 pb-4 md:pt-8 md:pb-6">
+          {/* Section heading with dot + subtle underline */}
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+              <span className="relative inline-block">
+                Projects
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
+                />
+              </span>
+            </span>
+          </h2>
           <p className="mt-2 text-muted-foreground">Recent work and experiments.</p>
 
           <div className="mt-6">
@@ -66,45 +157,13 @@ export function Projects() {
               <Carousel opts={{ align: "start", loop: true }} className="w-full">
                 <CarouselContent>
                   {projects.map((p) => (
-                    <CarouselItem key={p.title} className="basis-full">
-                      <Card className="overflow-hidden border-border/60 shadow-sm transition-shadow hover:shadow-md">
-                        <CardHeader>
-                          <CardTitle className="text-base">{p.title}</CardTitle>
-                          <CardDescription>{p.desc}</CardDescription>
-                        </CardHeader>
-
-                        <CardContent className="space-y-3">
-                          <AspectRatio ratio={16 / 9} className="bg-muted rounded-md">
-                            <img src={p.img} alt={p.title} className="h-full w-full rounded-md object-cover" />
-                          </AspectRatio>
-
-                          {/* tech chips */}
-                          <div className="flex flex-wrap gap-2">
-                            {p.tech.map((t) => (
-                              <Tooltip key={t}>
-                                <TooltipTrigger asChild>
-                                  <Badge variant="secondary">{t}</Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>{t}</TooltipContent>
-                              </Tooltip>
-                            ))}
-                          </div>
-
-                          {/* highlights */}
-                          <div className="flex flex-wrap gap-2">
-                            {p.highlights.map((h) => (
-                              <Badge key={h} variant="outline">
-                                {h}
-                              </Badge>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
+                    <CarouselItem key={p.title} className="basis-full md:basis-1/2 lg:basis-1/3">
+                      <ProjectCard p={p} />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
 
-                <div className="mt-4 flex items-center justify-end gap-2">
+                <div className="mt-2 flex items-center justify-end gap-2">
                   <CarouselPrevious />
                   <CarouselNext />
                 </div>

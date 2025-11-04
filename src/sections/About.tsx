@@ -5,11 +5,9 @@ import { motion, useReducedMotion } from "framer-motion"
 import { type ReactNode } from "react"
 
 /** -------------------- Global timing -------------------- **
- * Roughly matches the end of the hero (Design/Build/Ship + paragraph),
- * then waits a bit before starting About animations.
- * Nudge this up/down to taste.
+ * Starts soon after the hero headline completes and the paragraph begins.
  */
-const ABOUT_BASE_DELAY = 5.2  // seconds
+const ABOUT_BASE_DELAY = 3.2 // seconds
 
 /* ---------- Shared reveal for cards/paragraphs ---------- */
 function Reveal({
@@ -82,7 +80,7 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
                 className="absolute inset-0 z-20 bg-background rounded-[2px]"
                 initial={{ x: 0, opacity: 1 }}
                 whileInView={{ x: "105%", opacity: 0.95 }}
-                transition={{ duration: WIPE_DUR, ease: EASE, delay: baseDelay + WIPE_DELAY }}
+                transition={{ duration: 1.6, ease: EASE, delay: baseDelay + WIPE_DELAY }}
                 viewport={{ once: true, amount: 0.6 }}
                 style={{ willChange: "transform, opacity" }}
               />
@@ -130,28 +128,28 @@ export function About() {
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
         <AboutHeading baseDelay={ABOUT_BASE_DELAY} />
 
-        {/* Paragraphs: staggered after base delay */}
+        {/* Paragraphs: tighter stagger right after the heading starts */}
         <div className="mt-4 max-w-3xl text-base md:text-lg text-muted-foreground/90 space-y-1.5">
-          <Reveal y={12} delay={0.0} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.00} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               <strong> I build reliable</strong>, and simple to run web solutions.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.18} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.10} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               Every project ships with automated deployments <strong>and observable</strong> systems.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.36} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.20} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               <strong>Scalable </strong> <strong>software</strong> when you need it.
             </p>
           </Reveal>
         </div>
 
-        {/* Cards: start after the paragraphs */}
+        {/* Cards: appear sooner to avoid lag after copy */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.7}>
+          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.32} amount={0.55}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -173,7 +171,7 @@ export function About() {
             </Card>
           </Reveal>
 
-          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.95}>
+          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.48} amount={0.55}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

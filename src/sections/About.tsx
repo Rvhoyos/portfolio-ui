@@ -2,12 +2,29 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Code2, Server, GitBranch, RefreshCw, Activity, ShieldCheck } from "lucide-react"
 import { motion, useReducedMotion } from "framer-motion"
-import { type ReactNode } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 
 /** -------------------- Global timing -------------------- **
  * Starts soon after the hero headline completes and the paragraph begins.
  */
 const ABOUT_BASE_DELAY = 3.2 // seconds
+
+/* ---------- Mobile detection (no SSR crash) ---------- */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  )
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`)
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
+      setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches)
+    onChange(mql)
+    mql.addEventListener("change", onChange as (e: MediaQueryListEvent) => void)
+    return () => mql.removeEventListener("change", onChange as (e: MediaQueryListEvent) => void)
+  }, [breakpoint])
+  return isMobile
+}
 
 /* ---------- Shared reveal for cards/paragraphs ---------- */
 function Reveal({
@@ -111,6 +128,9 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
 }
 
 export function About() {
+  const isMobile = useIsMobile()
+  const MOBILE_ADVANCE_SEC = 1.2 // how much sooner the 2nd card should start on mobile
+
   const focus = [
     { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
     { label: "Spring for APIs and services", desc: "Typed contracts, validation, and versioned endpoints.", Icon: Server },
@@ -149,6 +169,7 @@ export function About() {
 
         {/* Cards: appear sooner to avoid lag after copy */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {/* Focus: unchanged */}
           <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.32} amount={0.55}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
@@ -171,7 +192,12 @@ export function About() {
             </Card>
           </Reveal>
 
-          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.48} amount={0.55}>
+          {/* Principles: start earlier on mobile only */}
+          <Reveal
+            baseDelay={ABOUT_BASE_DELAY + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
+            delay={0.48}
+            amount={0.55}
+          >
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

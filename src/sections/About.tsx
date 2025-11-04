@@ -9,6 +9,12 @@ import { type ReactNode, useEffect, useState } from "react"
  */
 const ABOUT_BASE_DELAY = 3.2 // seconds
 
+/** Make cards begin much sooner on desktop so the pause is obvious */
+const DESKTOP_ADVANCE_SEC = 2.4
+
+/** Mobile keeps its existing feel */
+const MOBILE_ADVANCE_SEC = 1.2
+
 /* ---------- Mobile detection (no SSR crash) ---------- */
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() =>
@@ -116,7 +122,7 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
               className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              transition={{ duration: UNDERLINE_DUR, ease: EASE, delay: baseDelay + UNDERLINE_DELAY }}
+              transition={{ duration: UNDERLINE_DUR, ease: [0.22, 1, 0.36, 1], delay: baseDelay + UNDERLINE_DELAY }}
               viewport={{ once: true, amount: 0.6 }}
               style={{ transformOrigin: "left", willChange: "transform" }}
             />
@@ -129,7 +135,6 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
 
 export function About() {
   const isMobile = useIsMobile()
-  const MOBILE_ADVANCE_SEC = 1.2 // how much sooner the 2nd card should start on mobile
 
   const focus = [
     { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
@@ -142,6 +147,9 @@ export function About() {
     { label: "Observable systems", desc: "Logging, metrics, and alerts by default for clear ops signals.", Icon: Activity },
     { label: "Clear security practices", desc: "Sensible headers (CSP, HSTS) and strict input validation.", Icon: ShieldCheck },
   ] as const
+
+  // Cards now begin noticeably sooner on desktop
+  const CARD_BASE = ABOUT_BASE_DELAY - (isMobile ? 0 : DESKTOP_ADVANCE_SEC)
 
   return (
     <section id="about" className="border-t border-border">
@@ -167,10 +175,10 @@ export function About() {
           </Reveal>
         </div>
 
-        {/* Cards: appear sooner to avoid lag after copy */}
+        {/* Cards: much earlier on desktop, same cadence on mobile */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {/* Focus: unchanged */}
-          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.32} amount={0.55}>
+          {/* Focus */}
+          <Reveal baseDelay={CARD_BASE} delay={0.12} amount={0.55}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -192,10 +200,10 @@ export function About() {
             </Card>
           </Reveal>
 
-          {/* Principles: start earlier on mobile only */}
+          {/* Principles */}
           <Reveal
-            baseDelay={ABOUT_BASE_DELAY + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
-            delay={0.48}
+            baseDelay={CARD_BASE + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
+            delay={0.24}
             amount={0.55}
           >
             <Card className="border-border/70">

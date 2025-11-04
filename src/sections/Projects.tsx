@@ -17,7 +17,6 @@ import { motion, useReducedMotion } from "framer-motion"
 type Project = {
   title: string
   desc: string
-  // img?: string                        
   links?: { github?: string; live?: string }
 }
 
@@ -47,8 +46,7 @@ const projects: Project[] = [
   },
 ]
 
-/* ---------- tiny helpers ---------- */
-
+/* ---------- helpers ---------- */
 function pickIcon(title: string) {
   if (/portfolio api/i.test(title)) return Server
   if (/portfolio ui/i.test(title)) return LayoutDashboard
@@ -96,24 +94,24 @@ function IconTile({ title }: { title: string }) {
   const Icon = pickIcon(title)
   const tag = monogram(title)
   return (
-    <div className="relative h-full w-full rounded-md overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden rounded-md">
       {/* soft conic gradient */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-[0.10] dark:opacity-[0.12] 
+        className="absolute inset-0 opacity-[0.10] dark:opacity-[0.12]
                    bg-[conic-gradient(from_120deg,theme(colors.primary.DEFAULT)_0%,transparent_35%,transparent_65%,theme(colors.primary.DEFAULT)_100%)]"
       />
       {/* faint dotted grid */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-40 
+        className="absolute inset-0 opacity-40
                    bg-[radial-gradient(hsl(var(--foreground)/0.08)_1px,transparent_1px)] [background-size:16px_16px]"
       />
       {/* content */}
       <div className="relative z-10 grid h-full w-full place-items-center">
-        <Icon className="h-16 w-16 md:h-20 md:w-20 text-foreground/85 transition-transform duration-300 group-hover:scale-[1.02]" />
+        <Icon className="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 text-foreground/85 transition-transform duration-300 group-hover:scale-[1.02]" />
         <span
-          className="absolute left-2 top-2 rounded-md border border-border/60 bg-background/70 px-1.5 py-0.5 
+          className="absolute left-2 top-2 rounded-md border border-border/60 bg-background/70 px-1.5 py-0.5
                      text-[10px] font-medium tracking-wide text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-background/50"
         >
           {tag}
@@ -142,7 +140,7 @@ function ProjectCard({ p }: { p: Project }) {
                      transition-transform duration-300 motion-safe:group-hover:scale-x-0"
         />
 
-        {/* CLOCKWISE BORDER DRAW (top-right start) pure CSS, 1px & primary/60 to match the accent */}
+        {/* CLOCKWISE BORDER DRAW (top-right start) pure CSS */}
         <div aria-hidden className="pointer-events-none absolute inset-[1px] z-[1] rounded-lg">
           {/* top edge (right -> left) */}
           <span
@@ -211,8 +209,8 @@ function ProjectCard({ p }: { p: Project }) {
         </CardHeader>
 
         <CardContent className="space-y-3">
-          {/* Icon placeholder in place of images */}
-          <AspectRatio ratio={16 / 9} className="hidden sm:block rounded-md bg-transparent overflow-hidden">
+          {/* Icon placeholder — now visible on ALL breakpoints for parity */}
+          <AspectRatio ratio={16 / 9} className="rounded-md bg-transparent overflow-hidden">
             <IconTile title={p.title} />
           </AspectRatio>
         </CardContent>
@@ -233,7 +231,6 @@ export function Projects() {
         </div>
 
         <Reveal>
-          {/* Section heading with dot + subtle underline */}
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
             <span className="inline-flex items-center gap-2">
               <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />

@@ -114,7 +114,7 @@ export function Header() {
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50">
-        {/* scroll progress (2px topper) */}
+        {/* progress bar */}
         <div
           aria-hidden
           className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
@@ -123,7 +123,6 @@ export function Header() {
 
         {/* glass header */}
         <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          {/* animated gradient hairline */}
           <div
             aria-hidden
             className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${
@@ -132,7 +131,6 @@ export function Header() {
           />
 
           <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
-            {/* Logo / wordmark */}
             <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
               <span
                 className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
@@ -169,7 +167,7 @@ export function Header() {
               </NavigationMenu>
             </nav>
 
-            {/* Theme toggle + Client Area (desktop) */}
+            {/* Desktop actions */}
             <div className="hidden md:flex items-center gap-2">
               <Button
                 size="icon"
@@ -201,8 +199,8 @@ export function Header() {
                   <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
                 </SheetTrigger>
 
-                {/* SMALLER sheet width (back to smaller than original) */}
-                <SheetContent side="right" className="w-64 p-0">
+                {/* Adaptive narrow sheet; box-border avoids clipping from border width */}
+                <SheetContent side="right" className="w-[min(92vw,20rem)] box-border p-0">
                   <div className="flex h-full flex-col">
                     {/* Body */}
                     <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3 space-y-1">
@@ -228,8 +226,11 @@ export function Header() {
                       <Separator className="my-3" />
                     </div>
 
-                    {/* Compact footer: RESIZE THE BUTTON ONLY */}
-                    <div className="border-t border-border bg-background/95 px-3 py-2">
+                    {/* Footer: resize ONLY the CTA button; add safe-area padding to avoid right-edge cutoffs */}
+                    <div
+                      className="border-t border-border bg-background/95 px-3 py-2"
+                      style={{ paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
+                    >
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
@@ -242,15 +243,14 @@ export function Header() {
                           <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                         </Button>
 
-                        {/* Button shrunk via text size + padding; responsive shorter label on xs */}
+                        {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
                         <Button
-                          className="w-full h-9 px-3 text-xs leading-none truncate"
+                          className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
                           type="button"
                           onClick={() => { setSoonOpen(true); setOpen(false) }}
                           aria-label="Client Area"
                         >
-                          <span className="sm:hidden">Client</span>
-                          <span className="hidden sm:inline">Client Area</span>
+                          Client Area
                         </Button>
                       </div>
                     </div>

@@ -114,7 +114,7 @@ export function Header() {
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50">
-        {/* scroll progress (2px topper) */}
+        {/* progress bar */}
         <div
           aria-hidden
           className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
@@ -123,7 +123,6 @@ export function Header() {
 
         {/* glass header */}
         <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          {/* animated gradient hairline appears after small scroll */}
           <div
             aria-hidden
             className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${
@@ -132,7 +131,6 @@ export function Header() {
           />
 
           <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
-            {/* Logo / wordmark with micro-hover */}
             <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
               <span
                 className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
@@ -157,7 +155,7 @@ export function Header() {
                           className={[
                             "relative rounded-full px-2 py-1.5 text-sm transition-colors",
                             isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
-                            "hover:text-foreground", // simple, subtle hover no underline
+                            "hover:text-foreground",
                           ].join(" ")}
                         >
                           {l.label}
@@ -169,7 +167,7 @@ export function Header() {
               </NavigationMenu>
             </nav>
 
-            {/* Theme toggle + Client Area */}
+            {/* Desktop actions */}
             <div className="hidden md:flex items-center gap-2">
               <Button
                 size="icon"
@@ -200,44 +198,61 @@ export function Header() {
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-72">
-                  <div className="px-2 py-2 space-y-1">
-                    {links.map(({ href, label, Icon }) => {
-                      const isActive = active && href === `#${active}`
-                      return (
-                        <a
-                          key={href}
-                          href={href}
-                          onClick={() => setOpen(false)}
-                          className={[
-                            "flex items-center gap-2 rounded px-2 py-2 transition-colors",
-                            "hover:bg-muted/70 dark:hover:bg-muted/40",
-                            isActive ? "bg-primary/10 dark:bg-primary/15" : "",
-                          ].join(" ")}
+
+                {/* Adaptive narrow sheet; box-border avoids clipping from border width */}
+                <SheetContent side="right" className="w-[min(92vw,20rem)] box-border p-0">
+                  <div className="flex h-full flex-col">
+                    {/* Body */}
+                    <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3 space-y-1">
+                      {links.map(({ href, label, Icon }) => {
+                        const isActive = active && href === `#${active}`
+                        return (
+                          <a
+                            key={href}
+                            href={href}
+                            onClick={() => setOpen(false)}
+                            className={[
+                              "flex items-center gap-2 rounded px-2 py-2 transition-colors",
+                              "hover:bg-muted/70 dark:hover:bg-muted/40",
+                              isActive ? "bg-primary/10 dark:bg-primary/15" : "",
+                            ].join(" ")}
+                          >
+                            {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
+                            <span className="min-w-0">{label}</span>
+                          </a>
+                        )
+                      })}
+
+                      <Separator className="my-3" />
+                    </div>
+
+                    {/* Footer: resize ONLY the CTA button; add safe-area padding to avoid right-edge cutoffs */}
+                    <div
+                      className="border-t border-border bg-background/95 px-3 py-2"
+                      style={{ paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          className="shrink-0 h-8 w-8"
+                          type="button"
+                          onClick={toggle}
+                          aria-label="Toggle theme"
                         >
-                          {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
-                          <span>{label}</span>
-                        </a>
-                      )
-                    })}
+                          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        </Button>
 
-                    <Separator className="my-3" />
-
-                    {/* Mobile theme toggle + CTA row */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        className="shrink-0"
-                        type="button"
-                        onClick={toggle}
-                        aria-label="Toggle theme"
-                      >
-                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      </Button>
-                      <Button className="w-full" type="button" onClick={() => { setSoonOpen(true); setOpen(false) }} aria-label="Client Area">
-                        Client Area
-                      </Button>
+                        {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
+                        <Button
+                          className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
+                          type="button"
+                          onClick={() => { setSoonOpen(true); setOpen(false) }}
+                          aria-label="Client Area"
+                        >
+                          Client Area
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </SheetContent>

@@ -2,7 +2,29 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Code2, Server, GitBranch, RefreshCw, Activity, ShieldCheck } from "lucide-react"
 import { motion, useReducedMotion } from "framer-motion"
-import { type ReactNode } from "react"
+import { type ReactNode, useEffect, useState } from "react"
+
+/** -------------------- Global timing -------------------- **
+ * Starts soon after the hero headline completes and the paragraph begins.
+ */
+const ABOUT_BASE_DELAY = 3.2 // seconds
+
+/* ---------- Mobile detection (no SSR crash) ---------- */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  )
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`)
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) =>
+      setIsMobile("matches" in e ? e.matches : (e as MediaQueryList).matches)
+    onChange(mql)
+    mql.addEventListener("change", onChange as (e: MediaQueryListEvent) => void)
+    return () => mql.removeEventListener("change", onChange as (e: MediaQueryListEvent) => void)
+  }, [breakpoint])
+  return isMobile
+}
 
 /* ---------- Shared reveal for cards/paragraphs ---------- */
 function Reveal({
@@ -10,11 +32,13 @@ function Reveal({
   y = 16,
   delay = 0,
   amount = 0.6,
+  baseDelay = 0,
 }: {
   children: ReactNode
   y?: number
   delay?: number
   amount?: number
+  baseDelay?: number
 }) {
   const prefersReduced = useReducedMotion()
   if (prefersReduced) return <>{children}</>
@@ -23,40 +47,64 @@ function Reveal({
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount }}
-      transition={{ duration: 0.7, ease: "easeOut", delay }}
+      transition={{ duration: 0.7, ease: "easeOut", delay: baseDelay + delay }}
     >
       {children}
     </motion.div>
   )
 }
 
-/* ---------- Heading: wipe + underline draw (dot is STATIC to avoid flicker) ---------- */
-function AboutHeading() {
+/* ---------- Heading: robust wipe (translateX) + underline draw ---------- */
+function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
   const prefersReduced = useReducedMotion()
-  const vp = { once: true, amount: 0.6 as const }
+
+  // Tunables
+  const WIPE_DUR = 1.6
+  const WIPE_DELAY = 0.12
+  const SYNC_OFFSET = 0.06 // underline starts just after the wipe begins
+  const UNDERLINE_DUR = WIPE_DUR - SYNC_OFFSET
+  const UNDERLINE_DELAY = WIPE_DELAY + SYNC_OFFSET
+  const DOT_DUR = 0.6
+  const DOT_DELAY = 0.18
+  const EASE = [0.22, 1, 0.36, 1] as const
 
   return (
     <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
       <span className="inline-flex items-center gap-2">
-        {/* Dot: static (no animation) */}
-        <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+        {/* Dot reveal */}
+        {prefersReduced ? (
+          <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+        ) : (
+          <motion.span
+            aria-hidden
+            className="h-2 w-2 rounded-full bg-primary/70"
+            initial={{ scale: 0.4, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: DOT_DUR, delay: baseDelay + DOT_DELAY, ease: EASE }}
+            viewport={{ once: true, amount: 0.6 }}
+            style={{ transformOrigin: "center", willChange: "transform, opacity" }}
+          />
+        )}
 
-        {/* Text: wipe reveal underline: draw from left */}
+        {/* Text + underline */}
         <span className="relative inline-block">
-          {prefersReduced ? (
-            <span>About</span>
-          ) : (
-            <motion.span
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-              viewport={vp}
-              className="inline-block"
-            >
-              About
-            </motion.span>
-          )}
+          {/* Text with overlay wipe */}
+          <span className="relative inline-block">
+            <span className="relative z-10">About</span>
+            {!prefersReduced && (
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 z-20 bg-background rounded-[2px]"
+                initial={{ x: 0, opacity: 1 }}
+                whileInView={{ x: "105%", opacity: 0.95 }}
+                transition={{ duration: 1.6, ease: EASE, delay: baseDelay + WIPE_DELAY }}
+                viewport={{ once: true, amount: 0.6 }}
+                style={{ willChange: "transform, opacity" }}
+              />
+            )}
+          </span>
 
+          {/* Underline draw — synced with the wipe */}
           {prefersReduced ? (
             <span
               aria-hidden
@@ -68,9 +116,9 @@ function AboutHeading() {
               className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
-              style={{ transformOrigin: "left" }}
-              viewport={vp}
+              transition={{ duration: UNDERLINE_DUR, ease: EASE, delay: baseDelay + UNDERLINE_DELAY }}
+              viewport={{ once: true, amount: 0.6 }}
+              style={{ transformOrigin: "left", willChange: "transform" }}
             />
           )}
         </span>
@@ -80,6 +128,9 @@ function AboutHeading() {
 }
 
 export function About() {
+  const isMobile = useIsMobile()
+  const MOBILE_ADVANCE_SEC = 1.2 // how much sooner the 2nd card should start on mobile
+
   const focus = [
     { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
     { label: "Spring for APIs and services", desc: "Typed contracts, validation, and versioned endpoints.", Icon: Server },
@@ -95,31 +146,31 @@ export function About() {
   return (
     <section id="about" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        {/* Heading with wipe + underline draw (dot static) */}
-        <AboutHeading />
+        <AboutHeading baseDelay={ABOUT_BASE_DELAY} />
 
-        {/* Paragraphs with the same Reveal animation (slight stagger) */}
+        {/* Paragraphs: tighter stagger right after the heading starts */}
         <div className="mt-4 max-w-3xl text-base md:text-lg text-muted-foreground/90 space-y-1.5">
-          <Reveal y={12} delay={0.0}>
+          <Reveal y={12} delay={0.00} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               <strong> I build reliable</strong>, and simple to run web solutions.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.08}>
+          <Reveal y={12} delay={0.10} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               Every project ships with automated deployments <strong>and observable</strong> systems.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.16}>
+          <Reveal y={12} delay={0.20} baseDelay={ABOUT_BASE_DELAY}>
             <p className="leading-relaxed">
               <strong>Scalable </strong> <strong>software</strong> when you need it.
             </p>
           </Reveal>
         </div>
 
+        {/* Cards: appear sooner to avoid lag after copy */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {/* Focus */}
-          <Reveal>
+          {/* Focus: unchanged */}
+          <Reveal baseDelay={ABOUT_BASE_DELAY} delay={0.32} amount={0.55}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -141,8 +192,12 @@ export function About() {
             </Card>
           </Reveal>
 
-          {/* Principles */}
-          <Reveal>
+          {/* Principles: start earlier on mobile only */}
+          <Reveal
+            baseDelay={ABOUT_BASE_DELAY + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
+            delay={0.48}
+            amount={0.55}
+          >
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

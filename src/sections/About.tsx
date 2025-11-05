@@ -61,7 +61,7 @@ function Reveal({
 }
 
 /* ---------- Heading: robust wipe (translateX) + underline draw ---------- */
-function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
+function AboutHeading({ baseDelay = 0, amount = 0.6 }: { baseDelay?: number; amount?: number }) {
   const prefersReduced = useReducedMotion()
 
   // Tunables
@@ -87,7 +87,7 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
             initial={{ scale: 0.4, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             transition={{ duration: DOT_DUR, delay: baseDelay + DOT_DELAY, ease: EASE }}
-            viewport={{ once: true, amount: 0.6 }}
+            viewport={{ once: true, amount }}
             style={{ transformOrigin: "center", willChange: "transform, opacity" }}
           />
         )}
@@ -104,7 +104,7 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
                 initial={{ x: 0, opacity: 1 }}
                 whileInView={{ x: "105%", opacity: 0.95 }}
                 transition={{ duration: 1.6, ease: EASE, delay: baseDelay + WIPE_DELAY }}
-                viewport={{ once: true, amount: 0.6 }}
+                viewport={{ once: true, amount }}
                 style={{ willChange: "transform, opacity" }}
               />
             )}
@@ -123,7 +123,7 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
               transition={{ duration: UNDERLINE_DUR, ease: [0.22, 1, 0.36, 1], delay: baseDelay + UNDERLINE_DELAY }}
-              viewport={{ once: true, amount: 0.6 }}
+              viewport={{ once: true, amount }}
               style={{ transformOrigin: "left", willChange: "transform" }}
             />
           )}
@@ -135,6 +135,9 @@ function AboutHeading({ baseDelay = 0 }: { baseDelay?: number }) {
 
 export function About() {
   const isMobile = useIsMobile()
+
+  // Shift the whole section earlier on mobile (no change to choreography/order)
+  const SECTION_BASE = ABOUT_BASE_DELAY - (isMobile ? 1.8 : 0)
 
   const focus = [
     { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
@@ -148,37 +151,41 @@ export function About() {
     { label: "Clear security practices", desc: "Sensible headers (CSP, HSTS) and strict input validation.", Icon: ShieldCheck },
   ] as const
 
-  // Cards now begin noticeably sooner on desktop
-  const CARD_BASE = ABOUT_BASE_DELAY - (isMobile ? 0 : DESKTOP_ADVANCE_SEC)
+  // Cards now begin noticeably sooner on desktop; on mobile they track SECTION_BASE
+  const CARD_BASE = SECTION_BASE - (isMobile ? 0 : DESKTOP_ADVANCE_SEC)
+
+  // Slightly earlier viewport trigger on phones
+  const headingAndParaAmount = isMobile ? 0.4 : 0.6
+  const cardAmount = isMobile ? 0.45 : 0.55
 
   return (
     <section id="about" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <AboutHeading baseDelay={ABOUT_BASE_DELAY} />
+        <AboutHeading baseDelay={SECTION_BASE} amount={headingAndParaAmount} />
 
         {/* Paragraphs: tighter stagger right after the heading starts */}
         <div className="mt-4 max-w-3xl text-base md:text-lg text-muted-foreground/90 space-y-1.5">
-          <Reveal y={12} delay={0.00} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.0} baseDelay={SECTION_BASE} amount={headingAndParaAmount}>
             <p className="leading-relaxed">
               <strong> I build reliable</strong>, and simple to run web solutions.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.10} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.10} baseDelay={SECTION_BASE} amount={headingAndParaAmount}>
             <p className="leading-relaxed">
               Every project ships with automated deployments <strong>and observable</strong> systems.
             </p>
           </Reveal>
-          <Reveal y={12} delay={0.20} baseDelay={ABOUT_BASE_DELAY}>
+          <Reveal y={12} delay={0.20} baseDelay={SECTION_BASE} amount={headingAndParaAmount}>
             <p className="leading-relaxed">
               <strong>Scalable </strong> <strong>software</strong> when you need it.
             </p>
           </Reveal>
         </div>
 
-        {/* Cards: much earlier on desktop, same cadence on mobile */}
+        {/* Cards: much earlier on desktop, same cadence on mobile but shifted earlier */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {/* Focus */}
-          <Reveal baseDelay={CARD_BASE} delay={0.12} amount={0.55}>
+          <Reveal baseDelay={CARD_BASE} delay={0.12} amount={cardAmount}>
             <Card className="border-border/70">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -204,7 +211,7 @@ export function About() {
           <Reveal
             baseDelay={CARD_BASE + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
             delay={0.24}
-            amount={0.55}
+            amount={cardAmount}
           >
             <Card className="border-border/70">
               <CardHeader className="pb-3">

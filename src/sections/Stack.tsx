@@ -50,9 +50,9 @@ function Reveal({
 const buckets: Record<string, BucketItem[]> = {
   Frontend: [
     { label: "React", desc: "Client-rendered experiences with protected routes when needed." },
+    { label: "Next.js", desc: "Hybrid SSR, routing, and data fetching for modern app UIs." },
     { label: "Vite", desc: "Fast local dev and optimized production builds." },
     { label: "Tailwind", desc: "Utility-first styling for consistent, accessible UI." },
-    { label: "shadcn/ui", desc: "Accessible primitives for apps and marketing pages." },
   ],
 
   Backend: [

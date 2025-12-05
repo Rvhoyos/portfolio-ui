@@ -66,7 +66,7 @@ export function Services() {
           </span>
         </h2>
 
-        <div className="mt-4 max-w-5xl">
+        <div className="mt-4">
           <Reveal>
             <Card className="border-border/70 bg-muted/40">
               <CardHeader className="pb-4">
@@ -91,7 +91,8 @@ export function Services() {
                     or operational work attached to it.
                   </p>
                   <p>
-                    Interested? Registed in the client area to book a consultation or send me an email through the contact form below.
+                    Interested? Register in the client area to book a consultation, or send me an email through the
+                    contact form below.
                   </p>
                 </div>
 

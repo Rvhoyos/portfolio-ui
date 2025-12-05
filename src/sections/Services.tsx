@@ -71,9 +71,6 @@ export function Services() {
             <Card className="border-border/70 bg-muted/40">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base">How I work</CardTitle>
-                <CardDescription>
-                  Modern web projects end-to-end: from UI and backend services to the systems that keep them online.
-                </CardDescription>
               </CardHeader>
 
               <CardContent className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)] lg:gap-8">

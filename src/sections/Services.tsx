@@ -1,12 +1,14 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { motion, useReducedMotion } from "framer-motion"
 import type { ReactNode } from "react"
 
-/** Reveal-on-scroll helper:
- * - Triggers later (amount: 0.6 → ~60% of element must be in view)
- * - Slightly stronger lift (y: 16)
- * - A touch longer duration (0.7s)
- */
+type Pill = {
+  label: string
+  body: string
+}
+
+/** Reveal-on-scroll helper */
 function Reveal({
   children,
   y = 16,
@@ -32,6 +34,21 @@ function Reveal({
   )
 }
 
+const workPills: Pill[] = [
+  {
+    label: "Websites",
+    body: "Marketing, product, and docs sites as static or hybrid builds that load fast and stay easy to update.",
+  },
+  {
+    label: "Web apps",
+    body: "Dashboards, portals, and internal tools with sign-in, roles, and a clean API behind them.",
+  },
+  {
+    label: "APIs & Ops",
+    body: "Backend services, hosting, and automation so your stack stays observable, backed up, and deployable.",
+  },
+]
+
 export function Services() {
   return (
     <section id="services" className="border-t border-border">
@@ -49,30 +66,47 @@ export function Services() {
           </span>
         </h2>
 
-        <div className="mt-4 max-w-3xl">
+        <div className="mt-4 max-w-5xl">
           <Reveal>
             <Card className="border-border/70 bg-muted/40">
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-4">
                 <CardTitle className="text-base">How I work</CardTitle>
                 <CardDescription>
-                  Modern web projects end-to-end: UI, backend services, and the systems around them.
+                  Modern web projects end-to-end: from UI and backend services to the systems that keep them online.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <p>
-                  I help teams build and run modern websites, web apps, APIs, and the systems around them. Apps and
-                  dashboards use React/Next.js for server rendering or client-side interactivity; pure marketing and
-                  docs sites ship as fast, low-cost static or hybrid builds.
-                </p>
-                <p>
-                  Projects come in two forms: items purchased directly from my catalog, or custom work defined through
-                  a proposal.
-                </p>
-                <p>
-                  When a project begins, it will appear as an engagement in the Client Dashboard (coming soon), where
-                  you&apos;ll be able to follow progress, share materials, review milestones, and manage any hosting or
-                  operational work attached to it.
-                </p>
+
+              <CardContent className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)] lg:gap-8">
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <p>
+                    I help teams build and run modern websites, web apps, APIs, and the systems around them. Apps and
+                    dashboards use React/Next.js for server rendering or client-side interactivity; pure marketing and
+                    docs sites ship as fast, low-cost static or hybrid builds.
+                  </p>
+                  <p>
+                    Projects come in two forms: items purchased directly from my catalog, or custom work defined through
+                    a proposal.
+                  </p>
+                  <p>
+                    When a project begins, it will appear as an engagement in the Client Dashboard (coming soon), where
+                    you&apos;ll be able to follow progress, share materials, review milestones, and manage any hosting
+                    or operational work attached to it.
+                  </p>
+                </div>
+
+                <div className="space-y-3 md:border-l md:border-border/60 md:pl-6">
+                  {workPills.map((pill) => (
+                    <div
+                      key={pill.label}
+                      className="rounded-xl border border-border/70 bg-background/60 p-3 text-sm shadow-sm"
+                    >
+                      <Badge variant="secondary" className="mb-1 rounded-full">
+                        {pill.label}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">{pill.body}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </Reveal>

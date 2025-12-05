@@ -79,9 +79,7 @@ export function Services() {
               <CardContent className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)] lg:gap-8">
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <p>
-                    I help teams build and run modern websites, web apps, APIs, and the systems around them. Apps and
-                    dashboards use React/Next.js for server rendering or client-side interactivity; pure marketing and
-                    docs sites ship as fast, low-cost static or hybrid builds.
+                    I help teams build and run modern websites, web apps, APIs, and the systems around them.
                   </p>
                   <p>
                     Projects come in two forms: items purchased directly from my catalog, or custom work defined through
@@ -91,6 +89,9 @@ export function Services() {
                     When a project begins, it will appear as an engagement in the Client Dashboard (coming soon), where
                     you&apos;ll be able to follow progress, share materials, review milestones, and manage any hosting
                     or operational work attached to it.
+                  </p>
+                  <p>
+                    Interested? Registed in the client area to book a consultation or send me an email through the contact form below.
                   </p>
                 </div>
 

@@ -11,6 +11,11 @@ type Pill = {
   icon: LucideIcon
 }
 
+type LeftBlock = {
+  title: string
+  body: string
+}
+
 /** Reveal-on-scroll helper */
 function Reveal({
   children,
@@ -73,11 +78,23 @@ const opsPills: Pill[] = [
   },
 ]
 
-const paragraphs: string[] = [
-  "I help teams build and run modern websites, web apps, APIs, and the systems around them.",
-  "Projects come in two forms: items purchased directly from my catalog, or custom work defined through a proposal.",
-  "When a project begins, it will appear as an engagement in the Client Dashboard (coming soon), where you'll be able to follow progress, share materials, review milestones, and manage any hosting or operational work attached to it.",
-  "Interested? Register in the client area to book a consultation, or send me an email through the contact form below.",
+const leftBlocks: LeftBlock[] = [
+  {
+    title: "Build & run",
+    body: "I help teams build and run modern websites, web apps, APIs, and the systems around them.",
+  },
+  {
+    title: "How projects start",
+    body: "We either pick something from the catalog or define a custom proposal together.",
+  },
+  {
+    title: "Where work lives",
+    body: "Each project appears as an engagement in the Client Dashboard (coming soon) where you can follow progress, share materials, review milestones, and manage any hosting or ops attached to it.",
+  },
+  {
+    title: "Getting in touch",
+    body: "Register in the client area to book a consultation, or reach out through the contact form below.",
+  },
 ]
 
 export function Services() {
@@ -107,7 +124,7 @@ export function Services() {
                 <div>
                   <CardTitle className="text-base">How I work</CardTitle>
                   <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                    Modern web projects end-to-end: from UI and backend services to the systems that keep them online.
+                    Use my shop or reach out through my form to book a consultation.
                   </p>
                 </div>
 
@@ -141,14 +158,17 @@ export function Services() {
               </CardHeader>
 
               <CardContent className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)] lg:gap-8">
-                {/* Left: process copy with hover emphasis */}
+                {/* Left: structured blocks with hover emphasis */}
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  {paragraphs.map((text) => (
+                  {leftBlocks.map((block) => (
                     <div
-                      key={text}
-                      className="group rounded-lg border border-transparent bg-transparent px-2 py-1 transition-colors hover:border-border/60 hover:bg-background/60"
+                      key={block.title}
+                      className="group rounded-lg border border-transparent bg-transparent px-2 py-2 transition-colors hover:border-border/60 hover:bg-background/60"
                     >
-                      <p className="text-sm text-muted-foreground group-hover:text-foreground">{text}</p>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-foreground/80">
+                        {block.title}
+                      </div>
+                      <p className="mt-0.5 text-sm text-muted-foreground group-hover:text-foreground">{block.body}</p>
                     </div>
                   ))}
                 </div>

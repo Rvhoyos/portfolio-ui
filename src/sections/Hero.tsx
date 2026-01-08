@@ -3,7 +3,9 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { motion, useReducedMotion } from "framer-motion"
 import { SiGradle } from "@icons-pack/react-simple-icons"
-import type { SVGProps, ComponentType } from "react"
+import { useRef, type SVGProps, type ComponentType } from "react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
 
 type Tool = { name: string; src?: string; Icon?: ComponentType<SVGProps<SVGSVGElement>> }
 
@@ -39,6 +41,7 @@ const tools: Tool[] = [
 
 export function Hero() {
   const prefersReduced = useReducedMotion()
+  const iconsContainerRef = useRef<HTMLDivElement>(null)
 
   // Animation timings
   const WORDS = ["Design.", "Build.", "Ship."]
@@ -52,13 +55,77 @@ export function Hero() {
   const PARA_LEAD_DELAY = PARA_BOLD_DELAY + 0.45
   const EASE = [0.22, 1, 0.36, 1] as const
 
+  // Floating & Magnetic icons animation
+  useGSAP(() => {
+    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (isReduced) return
+
+    const wrappers = gsap.utils.toArray<HTMLElement>(".tool-icon-wrapper")
+
+    wrappers.forEach((wrapper, i) => {
+      // 1. Floating Animation (on wrapper)
+      const randomDelay = i * 0.12
+      const floatAnim = gsap.to(wrapper, {
+        y: -6,
+        duration: 3,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+        delay: randomDelay,
+      })
+
+      const inner = wrapper.querySelector(".tool-icon-inner") as HTMLElement
+      if (!inner) return
+
+      // 2. Magnetic Interaction (on inner)
+      const xTo = gsap.quickTo(inner, "x", { duration: 0.4, ease: "power3.out" })
+      const yTo = gsap.quickTo(inner, "y", { duration: 0.4, ease: "power3.out" })
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const rect = wrapper.getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const centerY = rect.top + rect.height / 2
+
+        // Calculate distance from center
+        const x = e.clientX - centerX
+        const y = e.clientY - centerY
+
+        // Move inner element towards mouse (magnetic pull)
+        // Factor 0.3 means it moves 30% of the distance to the mouse
+        xTo(x * 0.6)
+        yTo(y * 0.6)
+      }
+
+      const handleMouseLeave = () => {
+        // Snap back elastically
+        gsap.to(inner, {
+          x: 0,
+          y: 0,
+          duration: 1,
+          ease: "elastic.out(1, 0.3)"
+        })
+        floatAnim.play()
+      }
+
+      const handleMouseEnter = () => {
+        floatAnim.pause()
+      }
+
+      wrapper.addEventListener("mousemove", handleMouseMove)
+      wrapper.addEventListener("mouseenter", handleMouseEnter)
+      wrapper.addEventListener("mouseleave", handleMouseLeave)
+
+      // Cleanup (optional but good practice in React, though scope handles most GSAP)
+      return () => {
+        wrapper.removeEventListener("mousemove", handleMouseMove)
+        wrapper.removeEventListener("mouseenter", handleMouseEnter)
+        wrapper.removeEventListener("mouseleave", handleMouseLeave)
+      }
+    })
+  }, { scope: iconsContainerRef })
+
   return (
     <section id="hero">
-      {/* local keyframes for gentle float */}
-      <style>{`
-        @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-      `}</style>
-
       <div className="mx-auto w-full max-w-7xl px-4 py-16 md:py-24">
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           {/* Left: copy */}
@@ -132,28 +199,29 @@ export function Hero() {
           {/* Right: logo wall (low-interaction, animated) */}
           <div className="md:order-last">
             <TooltipProvider>
-              <div className="rounded-xl border border-border bg-muted/50 p-5 shadow-sm">
+              <div ref={iconsContainerRef} className="rounded-xl border border-border bg-muted/50 p-5 shadow-sm">
                 {/* quilted responsive grid */}
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 sm:gap-5">
-                  {tools.map((t, i) => (
+                  {tools.map((t) => (
                     <Tooltip key={t.name}>
                       <TooltipTrigger asChild>
                         <div
-                          className="group grid place-items-center rounded-lg border border-border/60 bg-background p-3 sm:p-4 shadow-sm transition-transform"
-                          style={{ animation: `floaty 6s ease-in-out ${i * 0.12}s infinite` }}
+                          className="tool-icon-wrapper group grid place-items-center rounded-lg border border-border/60 bg-background p-3 sm:p-4 shadow-sm transition-transform cursor-pointer"
                           aria-label={t.name}
                         >
-                          {t.Icon ? (
-                            <t.Icon className="h-8 w-8 sm:h-10 sm:w-10 opacity-90" aria-hidden />
-                          ) : (
-                            <img
-                              src={t.src!}
-                              alt={t.name}
-                              className="h-8 w-8 sm:h-10 sm:w-10 opacity-90 transition-opacity group-hover:opacity-100"
-                              loading="lazy"
-                              referrerPolicy="no-referrer"
-                            />
-                          )}
+                          <div className="tool-icon-inner relative z-10 will-change-transform">
+                            {t.Icon ? (
+                              <t.Icon className="h-8 w-8 sm:h-10 sm:w-10 opacity-90" aria-hidden />
+                            ) : (
+                              <img
+                                src={t.src!}
+                                alt={t.name}
+                                className="h-8 w-8 sm:h-10 sm:w-10 opacity-90 transition-opacity group-hover:opacity-100"
+                                loading="lazy"
+                                referrerPolicy="no-referrer"
+                              />
+                            )}
+                          </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>{t.name}</TooltipContent>

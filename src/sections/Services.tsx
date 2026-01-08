@@ -1,9 +1,13 @@
-import { useState, type ReactNode } from "react"
+import { useState, type ReactNode, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { motion, useReducedMotion } from "framer-motion"
 import type { LucideIcon } from "lucide-react"
 import { Globe2, LayoutDashboard, ServerCog, CloudCog, ShieldCheck, Activity } from "lucide-react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 type Pill = {
   label: string
@@ -16,7 +20,7 @@ type LeftBlock = {
   body: string
 }
 
-/** Reveal-on-scroll helper */
+/** Reveal-on-scroll helper - GSAP Version */
 function Reveal({
   children,
   y = 16,
@@ -28,18 +32,38 @@ function Reveal({
   delay?: number
   amount?: number
 }) {
-  const prefersReduced = useReducedMotion()
-  if (prefersReduced) return <>{children}</>
-  return (
-    <motion.div
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount }}
-      transition={{ duration: 0.7, ease: "easeOut", delay }}
-    >
-      {children}
-    </motion.div>
+  const ref = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      if (!ref.current) return
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (prefersReduced) {
+        gsap.set(ref.current, { opacity: 1, y: 0 })
+        return
+      }
+
+      gsap.fromTo(
+        ref.current,
+        { opacity: 0, y },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          delay,
+          scrollTrigger: {
+            trigger: ref.current,
+            start: `top ${amount * 100}%`,
+            once: true,
+          },
+        }
+      )
+    },
+    { scope: ref }
   )
+
+  return <div ref={ref}>{children}</div>
 }
 
 const buildPills: Pill[] = [
@@ -100,6 +124,35 @@ const leftBlocks: LeftBlock[] = [
 export function Services() {
   const [mode, setMode] = useState<"build" | "ops">("build")
   const pills = mode === "build" ? buildPills : opsPills
+  const pillsRef = useRef<HTMLDivElement>(null)
+
+  // Animate pills on mode change (3D Flip)
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    gsap.fromTo(
+      ".pill-item",
+      {
+        opacity: 0,
+        rotationX: -45, // Stronger tilt
+        y: -20,
+        z: -50,
+        transformOrigin: "50% 0%", // Top center
+        immediateRender: false,
+      },
+      {
+        opacity: 1,
+        rotationX: 0,
+        y: 0,
+        z: 0,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: "back.out(1.2)", // Nice snappy elastic
+        clearProps: "transform,opacity,visibility" // Ensure clean final state
+      }
+    )
+  }, { scope: pillsRef, dependencies: [mode] })
 
   return (
     <section id="services" className="border-t border-border">
@@ -134,22 +187,20 @@ export function Services() {
                     <button
                       type="button"
                       onClick={() => setMode("build")}
-                      className={`rounded-full px-3 py-1 text-xs transition-colors ${
-                        mode === "build"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:bg-muted/60"
-                      }`}
+                      className={`rounded-full px-3 py-1 text-xs transition-colors ${mode === "build"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:bg-muted/60"
+                        }`}
                     >
                       Build
                     </button>
                     <button
                       type="button"
                       onClick={() => setMode("ops")}
-                      className={`rounded-full px-3 py-1 text-xs transition-colors ${
-                        mode === "ops"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:bg-muted/60"
-                      }`}
+                      className={`rounded-full px-3 py-1 text-xs transition-colors ${mode === "ops"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:bg-muted/60"
+                        }`}
                     >
                       Ops
                     </button>
@@ -174,19 +225,19 @@ export function Services() {
                 </div>
 
                 {/* Right: build/ops tiles with icons */}
-                <div className="space-y-3 md:border-l md:border-border/60 md:pl-6">
-                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <div className="md:border-l md:border-border/60 md:pl-6" ref={pillsRef}>
+                  <div className="flex items-center justify-between text-xs font-medium text-muted-foreground mb-3">
                     <span>{mode === "build" ? "Build & product" : "Ops & reliability"}</span>
                     <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide">
                       {mode === "build" ? "Catalog & proposals" : "Hosting & ongoing"}
                     </span>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-3 perspective-[1000px]">
                     {pills.map((pill) => (
                       <div
                         key={pill.label}
-                        className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/60 p-3 text-sm shadow-sm"
+                        className="pill-item flex items-start gap-3 rounded-xl border border-border/70 bg-background/60 p-3 text-sm shadow-sm will-change-transform"
                       >
                         <div className="mt-0.5 rounded-full bg-primary/10 p-1.5">
                           <pill.icon className="h-4 w-4 text-primary" aria-hidden />

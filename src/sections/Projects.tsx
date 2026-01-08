@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from "react"
+import { useRef, type ReactNode, type MouseEvent } from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Server, LayoutDashboard, Gamepad2, LineChart } from "lucide-react"
+import { ExternalLink, Server, LayoutDashboard, Gamepad2, LineChart, Fan } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import {
   Carousel,
@@ -12,7 +12,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { motion, useReducedMotion } from "framer-motion"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 type Project = {
   title: string
@@ -44,6 +48,12 @@ const projects: Project[] = [
       "Discrete-event simulation built in Python (SimPy) to evaluate airport operating policies. Uses queuing models and random variate generation for realistic arrivals and service times, with scenario-based performance analysis and visual reporting.",
     links: { github: "https://github.com/Rvhoyos/A-DES-model-of-Airport-Passenger-Flow" },
   },
+  {
+    title: "Dr0nelia",
+    desc:
+      "Client rendered SPA using Vite+React. Specialized form handling via Google API and Cloudflare Worker integration. Custom drone aesthetic and animations.",
+    links: { live: "https://dr0nelia.ca" },
+  },
 ]
 
 /* ---------- helpers ---------- */
@@ -52,6 +62,7 @@ function pickIcon(title: string) {
   if (/portfolio ui/i.test(title)) return LayoutDashboard
   if (/quackedmod/i.test(title)) return Gamepad2
   if (/smith\s*falls|simulator|flow/i.test(title)) return LineChart
+  if (/dr0nelia/i.test(title)) return Fan
   return LayoutDashboard
 }
 
@@ -60,6 +71,7 @@ function monogram(title: string) {
   if (/portfolio ui/i.test(title)) return "UI"
   if (/quackedmod/i.test(title)) return "QM"
   if (/smith\s*falls|simulator|flow/i.test(title)) return "SFA"
+  if (/dr0nelia/i.test(title)) return "DR0"
   return "APP"
 }
 
@@ -75,18 +87,38 @@ function Reveal({
   delay?: number
   amount?: number
 }) {
-  const prefersReduced = useReducedMotion()
-  if (prefersReduced) return <>{children}</>
-  return (
-    <motion.div
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount }}
-      transition={{ duration: 0.28, ease: "easeOut", delay }}
-    >
-      {children}
-    </motion.div>
+  const ref = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      if (!ref.current) return
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (prefersReduced) {
+        gsap.set(ref.current, { opacity: 1, y: 0 })
+        return
+      }
+
+      gsap.fromTo(
+        ref.current,
+        { opacity: 0, y },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.28,
+          ease: "power2.out",
+          delay,
+          scrollTrigger: {
+            trigger: ref.current,
+            start: `top ${amount * 100}%`,
+            once: true,
+          },
+        }
+      )
+    },
+    { scope: ref }
   )
+
+  return <div ref={ref}>{children}</div>
 }
 
 /* ---------- icon tile (replaces images) ---------- */
@@ -122,17 +154,33 @@ function IconTile({ title }: { title: string }) {
 }
 
 function ProjectCard({ p }: { p: Project }) {
-  const [_imgLoaded, _setImgLoaded] = useState(false)
-  const [_imgError, _setImgError] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    cardRef.current.style.setProperty("--x", `${x}px`)
+    cardRef.current.style.setProperty("--y", `${y}px`)
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.24, ease: "easeOut" }}
+    <div
+      className="project-card-wrapper h-full"
+      onMouseMove={handleMouseMove}
+      ref={cardRef}
     >
-      <Card className="group relative overflow-hidden border-border/60 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md">
+      <Card className="group relative h-full overflow-hidden border-border/60 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md">
+        {/* Spotlight Overlay */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background: "radial-gradient(800px circle at var(--x, 0px) var(--y, 0px), rgba(255,255,255,0.06), transparent 40%)"
+          }}
+        />
+
         {/* 1px top accent that WIPES to the right on hover */}
         <div
           aria-hidden
@@ -168,7 +216,7 @@ function ProjectCard({ p }: { p: Project }) {
           />
         </div>
 
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 relative z-20">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <CardTitle className="text-base">{p.title}</CardTitle>
@@ -208,21 +256,45 @@ function ProjectCard({ p }: { p: Project }) {
           <CardDescription className="mt-1 text-sm">{p.desc}</CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 relative z-20">
           {/* Icon placeholder — now visible on ALL breakpoints for parity */}
           <AspectRatio ratio={16 / 9} className="rounded-md bg-transparent overflow-hidden">
             <IconTile title={p.title} />
           </AspectRatio>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
 export function Projects() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    gsap.fromTo(
+      ".project-card-wrapper",
+      { opacity: 0, y: 20 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 70%",
+          once: true,
+        }
+      }
+    )
+  }, { scope: containerRef })
+
   return (
     <section id="projects" className="border-t border-border">
-      <div className="relative mx-auto w-full max-w-7xl px-4 pt-14 pb-10 md:pt-16 md:pb-12">
+      <div ref={containerRef} className="relative mx-auto w-full max-w-7xl px-4 pt-14 pb-10 md:pt-16 md:pb-12">
         {/* background polish: faint dots + two blurred glows */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
@@ -254,7 +326,7 @@ export function Projects() {
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
               <CarouselContent>
                 {projects.map((p) => (
-                  <CarouselItem key={p.title} className="basis-full md:basis-1/2 lg:basis-1/3">
+                  <CarouselItem key={p.title} className="basis-full md:basis-1/2 lg:basis-1/3 pl-4">
                     <ProjectCard p={p} />
                   </CarouselItem>
                 ))}

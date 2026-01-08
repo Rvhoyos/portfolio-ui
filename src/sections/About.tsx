@@ -1,19 +1,14 @@
+import { useRef, useState, useEffect } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Code2, Server, GitBranch, RefreshCw, Activity, ShieldCheck } from "lucide-react"
-import { motion, useReducedMotion } from "framer-motion"
-import { type ReactNode, useEffect, useState } from "react"
+import type { ReactNode } from "react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-/** -------------------- Global timing -------------------- **
- * Starts soon after the hero headline completes and the paragraph begins.
- */
-const ABOUT_BASE_DELAY = 3.2 // seconds
+gsap.registerPlugin(ScrollTrigger)
 
-/** Make cards begin much sooner on desktop so the pause is obvious */
-const DESKTOP_ADVANCE_SEC = 2.4
-
-/** Mobile keeps its existing feel */
-const MOBILE_ADVANCE_SEC = 1.2
 
 /* ---------- Mobile detection (no SSR crash) ---------- */
 function useIsMobile(breakpoint = 768) {
@@ -32,7 +27,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile
 }
 
-/* ---------- Shared reveal for cards/paragraphs ---------- */
+/* ---------- Shared reveal for cards/paragraphs with GSAP ---------- */
 function Reveal({
   children,
   y = 16,
@@ -46,87 +41,117 @@ function Reveal({
   amount?: number
   baseDelay?: number
 }) {
-  const prefersReduced = useReducedMotion()
-  if (prefersReduced) return <>{children}</>
-  return (
-    <motion.div
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount }}
-      transition={{ duration: 0.7, ease: "easeOut", delay: baseDelay + delay }}
-    >
-      {children}
-    </motion.div>
+  const ref = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      if (!ref.current) return
+
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (prefersReduced) {
+        gsap.set(ref.current, { opacity: 1, y: 0 })
+        return
+      }
+
+      gsap.fromTo(
+        ref.current,
+        { opacity: 0, y },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          delay: baseDelay + delay,
+          scrollTrigger: {
+            trigger: ref.current,
+            start: `top ${amount * 100}%`,
+            once: true,
+          },
+        }
+      )
+    },
+    { scope: ref, dependencies: [delay, baseDelay] }
   )
+
+  return <div ref={ref}>{children}</div>
 }
 
-/* ---------- Heading: robust wipe (translateX) + underline draw ---------- */
+/* ---------- Heading: robust wipe (clip-path) + underline draw ---------- */
 function AboutHeading({ baseDelay = 0, amount = 0.6 }: { baseDelay?: number; amount?: number }) {
-  const prefersReduced = useReducedMotion()
+  const containerRef = useRef<HTMLHeadingElement>(null)
 
-  // Tunables
-  const WIPE_DUR = 1.6
-  const WIPE_DELAY = 0.12
-  const SYNC_OFFSET = 0.06 // underline starts just after the wipe begins
-  const UNDERLINE_DUR = WIPE_DUR - SYNC_OFFSET
-  const UNDERLINE_DELAY = WIPE_DELAY + SYNC_OFFSET
-  const DOT_DUR = 0.6
-  const DOT_DELAY = 0.18
-  const EASE = [0.22, 1, 0.36, 1] as const
+  useGSAP(
+    () => {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (prefersReduced) return
+
+      // Tunables matching original Framer Motion constants
+      const WIPE_DUR = 1.6
+      const WIPE_DELAY = 0.12
+      const SYNC_OFFSET = 0.06
+      const UNDERLINE_DUR = WIPE_DUR - SYNC_OFFSET
+      const UNDERLINE_DELAY = WIPE_DELAY + SYNC_OFFSET
+      const DOT_DUR = 0.6
+      const DOT_DELAY = 0.18
+      const EASE = "power2.out" // Approx match for [0.22, 1, 0.36, 1]
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: `top ${amount * 100}%`,
+          once: true,
+        },
+        delay: baseDelay,
+      })
+
+      // Dot
+      tl.fromTo(
+        ".dot-target",
+        { scale: 0.4, opacity: 0 },
+        { scale: 1, opacity: 1, duration: DOT_DUR, ease: EASE },
+        DOT_DELAY
+      )
+
+      // Text Reveal (Clip Path)
+      tl.fromTo(
+        ".text-reveal-wrapper",
+        { clipPath: "inset(0 100% 0 0)" },
+        { clipPath: "inset(0 0% 0 0)", duration: WIPE_DUR, ease: EASE },
+        WIPE_DELAY
+      )
+
+      // Underline
+      tl.fromTo(
+        ".underline-target",
+        { scaleX: 0 },
+        { scaleX: 1, duration: UNDERLINE_DUR, ease: EASE },
+        UNDERLINE_DELAY
+      )
+    },
+    { scope: containerRef, dependencies: [baseDelay] }
+  )
 
   return (
-    <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+    <h2 ref={containerRef} className="text-2xl md:text-3xl font-semibold tracking-tight">
       <span className="inline-flex items-center gap-2">
         {/* Dot reveal */}
-        {prefersReduced ? (
-          <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
-        ) : (
-          <motion.span
-            aria-hidden
-            className="h-2 w-2 rounded-full bg-primary/70"
-            initial={{ scale: 0.4, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            transition={{ duration: DOT_DUR, delay: baseDelay + DOT_DELAY, ease: EASE }}
-            viewport={{ once: true, amount }}
-            style={{ transformOrigin: "center", willChange: "transform, opacity" }}
-          />
-        )}
+        <span
+          aria-hidden
+          className="dot-target h-2 w-2 rounded-full bg-primary/70"
+        />
 
         {/* Text + underline */}
         <span className="relative inline-block">
-          {/* Text with overlay wipe */}
-          <span className="relative inline-block">
-            <span className="relative z-10">About</span>
-            {!prefersReduced && (
-              <motion.span
-                aria-hidden
-                className="absolute inset-0 z-20 bg-background rounded-[2px]"
-                initial={{ x: 0, opacity: 1 }}
-                whileInView={{ x: "105%", opacity: 0.95 }}
-                transition={{ duration: 1.6, ease: EASE, delay: baseDelay + WIPE_DELAY }}
-                viewport={{ once: true, amount }}
-                style={{ willChange: "transform, opacity" }}
-              />
-            )}
+          {/* Text with clip-path reveal */}
+          <span className="text-reveal-wrapper relative inline-block will-change-[clip-path]">
+            About
           </span>
 
-          {/* Underline draw — synced with the wipe */}
-          {prefersReduced ? (
-            <span
-              aria-hidden
-              className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
-            />
-          ) : (
-            <motion.span
-              aria-hidden
-              className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: UNDERLINE_DUR, ease: [0.22, 1, 0.36, 1], delay: baseDelay + UNDERLINE_DELAY }}
-              viewport={{ once: true, amount }}
-              style={{ transformOrigin: "left", willChange: "transform" }}
-            />
-          )}
+          {/* Underline draw */}
+          <span
+            aria-hidden
+            className="underline-target absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0 origin-left"
+          />
         </span>
       </span>
     </h2>
@@ -136,8 +161,9 @@ function AboutHeading({ baseDelay = 0, amount = 0.6 }: { baseDelay?: number; amo
 export function About() {
   const isMobile = useIsMobile()
 
-  // Shift the whole section earlier on mobile (no change to choreography/order)
-  const SECTION_BASE = ABOUT_BASE_DELAY - (isMobile ? 1.8 : 0)
+  // Standard snappy timing
+  const SECTION_BASE = 0.1
+  const CARD_BASE = 0.25
 
   const focus = [
     { label: "React-powered user interfaces", desc: "Modern UI with fast navigation.", Icon: Code2 },
@@ -150,9 +176,6 @@ export function About() {
     { label: "Observable systems", desc: "Logging, metrics, and alerts by default for clear ops signals.", Icon: Activity },
     { label: "Clear security practices", desc: "Sensible headers (CSP, HSTS) and strict input validation.", Icon: ShieldCheck },
   ] as const
-
-  // Cards now begin noticeably sooner on desktop; on mobile they track SECTION_BASE
-  const CARD_BASE = SECTION_BASE - (isMobile ? 0 : DESKTOP_ADVANCE_SEC)
 
   // Slightly earlier viewport trigger on phones
   const headingAndParaAmount = isMobile ? 0.4 : 0.6
@@ -209,7 +232,7 @@ export function About() {
 
           {/* Principles */}
           <Reveal
-            baseDelay={CARD_BASE + (isMobile ? -MOBILE_ADVANCE_SEC : 0)}
+            baseDelay={CARD_BASE + 0.15}
             delay={0.24}
             amount={cardAmount}
           >

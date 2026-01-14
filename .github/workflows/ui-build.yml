@@ -55,13 +55,6 @@ jobs:
       url: https://staging.raulhoyos.com
 
     steps:
-      - name: Ensure Caddy edge network exists (quacked-wiki_webnet)
-        run: |
-          docker network inspect quacked-wiki_webnet >/dev/null 2>&1 || {
-            echo "ERROR: Docker network 'quacked-wiki_webnet' not found. Aborting." >&2
-            exit 1
-          }
-
       - name: Write compose and bring up stack
         run: |
           sudo mkdir -p /opt/portfolio-ui
@@ -73,13 +66,8 @@ jobs:
               image: portfolio-ui:staging
               container_name: portfolio-ui-staging
               restart: unless-stopped
-              networks:
-                - webnet
-
-          networks:
-            webnet:
-              external: true
-              name: quacked-wiki_webnet
+              ports:
+                - "127.0.0.1:18082:80"
           YAML
 
           cd /opt/portfolio-ui
@@ -98,13 +86,6 @@ jobs:
       url: https://raulhoyos.com
 
     steps:
-      - name: Ensure Caddy edge network exists (quacked-wiki_webnet)
-        run: |
-          docker network inspect quacked-wiki_webnet >/dev/null 2>&1 || {
-            echo "ERROR: Docker network 'quacked-wiki_webnet' not found. Aborting." >&2
-            exit 1
-          }
-
       - name: Write compose and bring up stack
         run: |
           sudo mkdir -p /opt/portfolio-ui-prod
@@ -116,13 +97,8 @@ jobs:
               image: portfolio-ui:prod
               container_name: portfolio-ui-prod
               restart: unless-stopped
-              networks:
-                - webnet
-
-          networks:
-            webnet:
-              external: true
-              name: quacked-wiki_webnet
+              ports:
+                - "127.0.0.1:18080:80"
           YAML
 
           cd /opt/portfolio-ui-prod

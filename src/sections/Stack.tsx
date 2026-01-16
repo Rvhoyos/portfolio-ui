@@ -59,6 +59,7 @@ const buckets: Record<string, BucketItem[]> = {
 
   "Data Stores": [
     { label: "PostgreSQL", desc: "Reliable relational core for most workloads." },
+    { label: "Redis", desc: "High-performance in-memory cache and message broker." },
     { label: "TimescaleDB", desc: "Time-series on Postgres for metrics/events." },
     { label: "Flyway", desc: "Schema migrations applied safely via CI/CD." },
   ],

@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog"
 import {
-  Sun, Moon, Info, Boxes, Wrench, LayoutDashboard, Mail
+  Sun, Moon, Info, Boxes, Wrench, LayoutDashboard, Mail, PenLine
 } from "lucide-react"
 
 type LinkItem = { href: `#${string}`; label: string; Icon?: React.ComponentType<{ className?: string }> }
@@ -20,6 +20,7 @@ const links: LinkItem[] = [
   { href: "#stack", label: "Stack", Icon: Boxes },
   { href: "#services", label: "Services", Icon: Wrench },
   { href: "#projects", label: "Projects", Icon: LayoutDashboard },
+  { href: "#blog", label: "Blog", Icon: PenLine },
   { href: "#contact", label: "Contact", Icon: Mail },
 ]
 
@@ -109,7 +110,7 @@ export function Header() {
   const [soonOpen, setSoonOpen] = useState(false)
   const { scrolled, progress } = useScrollInfo()
   const { toggle } = useTheme()
-  const active = useActiveSection(["about", "stack", "services", "projects", "contact"])
+  const active = useActiveSection(["about", "stack", "services", "projects", "blog", "contact"])
 
   return (
     <TooltipProvider>
@@ -125,9 +126,8 @@ export function Header() {
         <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div
             aria-hidden
-            className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${
-              scrolled ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"
+              }`}
           />
 
           <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">

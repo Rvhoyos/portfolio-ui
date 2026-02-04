@@ -1,118 +1,81 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select"
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { Loader2, Send, CheckCircle2 } from "lucide-react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 const API_ENDPOINT = "/api/contact/lead"
 
-// Human-tempo guardrails (client-side only; server will enforce later)
-const MIN_T_MS = 1500           // reject if user submits faster than this
-const MAX_T_MS = 2 * 60 * 60 * 1000 // also reject if the tab was left open "forever"
+// Human-tempo guardrails
+const MIN_T_MS = 1500
+const MAX_T_MS = 2 * 60 * 60 * 1000
 
 export function Contact() {
-  // store the slug, not the human label
-  const [interestSlug, setInterestSlug] = useState<string>("")
-  const [timeline, setTimeline] = useState<string>("")
-  const [budget, setBudget] = useState<string>("")
   const [msg, setMsg] = useState<string>("")
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const MSG_LIMIT = 1000
-
-  // timestamp when the form first renders (used for human-tempo check)
   const [renderedAt, setRenderedAt] = useState<number>(() => Date.now())
+  const MSG_LIMIT = 500
+
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+
   useEffect(() => {
-    // ensure mounted timestamp (SSR safety)
     setRenderedAt(Date.now())
   }, [])
 
-  // Slug -> human label (must align with Services links)
-  const SERVICE_LABELS: Record<string, string> = {
-    ssg: "Marketing Sites and Landing Pages",
-    spa: "SaaS Web App",
-    ssr: "Personalized Web App (Server-Rendered)",
-    apis: "Platform Integrations and APIs",
-    devops: "Managed Cloud and DevOps",
-    kubernetes: "Kubernetes Readiness and Scaling",
-  }
-  const interestLabel = interestSlug ? SERVICE_LABELS[interestSlug] ?? interestSlug : ""
+  // GSAP entrance animation
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
 
-  const buildTemplate = (serviceTitle: string) =>
-    [
-      `Project: ${serviceTitle}`,
-      `Goals & outcomes:`,
-      `Audience & users:`,
-      `Current state (site/app, data, integrations):`,
-      `Key features (prioritized):`,
-      `Constraints (timeline, budget, compliance):`,
-      `Success metrics (what “good” looks like):`,
-      `Links/refs (optional):`,
-    ].join("\n")
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: "top 80%",
+        once: true,
+      },
+    })
 
-  const scrollToContact = useCallback(() => {
-    const node = document.getElementById("contact")
-    if (node) node.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [])
+    // Heading draws in
+    tl.fromTo(
+      ".contact-heading",
+      { opacity: 0, y: 30, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, y: 0, clipPath: "inset(0 0% 0 0)", duration: 1, ease: "power3.out" }
+    )
 
-  const prefillFromUrl = useCallback(() => {
-    const params = new URLSearchParams(window.location.search)
-    const slug = params.get("service")
-    if (!slug) return
+    // Subtext fades
+    tl.fromTo(
+      ".contact-subtext",
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      "-=0.5"
+    )
 
-    if (SERVICE_LABELS[slug]) {
-      setInterestSlug(slug)
-      if (!msg) setMsg(buildTemplate(SERVICE_LABELS[slug]).slice(0, MSG_LIMIT))
-    }
+    // Form fields stagger in with a subtle scale
+    tl.fromTo(
+      ".form-field",
+      { opacity: 0, y: 20, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.2)" },
+      "-=0.3"
+    )
 
-    // let the browser jump to #contact first, then clean the query
-    setTimeout(() => {
-      const cleanUrl = window.location.pathname + (window.location.hash || "")
-      window.history.replaceState({}, "", cleanUrl)
-    }, 0)
-
-    // ensure scroll lands correctly in SPA context
-    scrollToContact()
-  }, [MSG_LIMIT, msg, scrollToContact])
-
-  // On first mount (e.g., landing on /?service=...#contact)
-  useEffect(() => {
-    prefillFromUrl()
-  }, [prefillFromUrl])
-
-  // Also handle subsequent clicks on service CTAs without a full reload:
-  useEffect(() => {
-    const clickHandler = () => {
-      // wait until the URL updates from the anchor click, then read it
-      setTimeout(prefillFromUrl, 0)
-    }
-    window.addEventListener("click", clickHandler, true)
-
-    // When hash changes (e.g., first jump to #contact), also check
-    const hashHandler = () => prefillFromUrl()
-    window.addEventListener("hashchange", hashHandler)
-
-    return () => {
-      window.removeEventListener("click", clickHandler, true)
-      window.removeEventListener("hashchange", hashHandler)
-    }
-  }, [prefillFromUrl])
+    // Button elastic pop
+    tl.fromTo(
+      ".submit-btn",
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration: 0.6, ease: "elastic.out(1, 0.5)" },
+      "-=0.2"
+    )
+  }, { scope: sectionRef })
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -122,16 +85,12 @@ export function Contact() {
     const form = e.currentTarget
     const fd = new FormData(form)
 
-    // Honeypot if filled, pretend success but do nothing
+    // Honeypot
     const honey = (fd.get("company_website") as string) || ""
     if (honey.trim().length > 0) {
-      setSuccess("Thanks message received.")
+      setSuccess("Thanks! Message received.")
       form.reset()
-      setInterestSlug("")
-      setTimeline("")
-      setBudget("")
       setMsg("")
-      // refresh renderedAt for a future legitimate submit
       setRenderedAt(Date.now())
       return
     }
@@ -139,49 +98,43 @@ export function Contact() {
     const clientSubmittedAt = Date.now()
     const tookMs = clientSubmittedAt - renderedAt
 
-    // Client-side human-tempo guard (server will mirror later)
     if (tookMs < MIN_T_MS) {
-      setError("That was too fast. Please review your message and try again.")
+      setError("That was too fast. Please review and try again.")
       return
     }
     if (tookMs > MAX_T_MS) {
-      setError("Your form sat open a long time. Please refresh and try again.")
+      setError("Form expired. Please refresh and try again.")
       return
     }
 
     const payload = {
       name: (fd.get("name") as string)?.trim(),
       email: (fd.get("email") as string)?.trim(),
-      org: (fd.get("org") as string)?.trim() || null,
-      interestSlug: interestSlug || null,
-      interest: interestLabel || null,
-      timeline: timeline || null,
-      budget: budget || null,
       message: msg.trim(),
       meta: {
-        path: typeof window !== "undefined" ? window.location.pathname : "",
-        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        path: window.location.pathname,
         timestamp: new Date().toISOString(),
-        renderedAt,               // epoch ms
-        clientSubmittedAt,        // epoch ms
-        tookMs,                   // client-perceived time to submit
+        tookMs,
       },
     }
 
     if (!payload.name || !payload.email || !payload.message) {
-      setError("Please fill in your name, email, and a short project summary.")
+      setError("Please fill in all fields.")
       return
     }
 
     try {
       setSubmitting(true)
+
+      // Animate button to loading state
+      gsap.to(".submit-btn", {
+        scale: 0.95,
+        duration: 0.2,
+      })
+
       const res = await fetch(API_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // extra hint for future server-side origin checks
-          "X-Client-Origin": typeof window !== "undefined" ? window.location.origin : "",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
 
@@ -190,180 +143,147 @@ export function Contact() {
         throw new Error(text || `Request failed with ${res.status}`)
       }
 
-      setSuccess("Thanks your message was sent. I’ll get back to you shortly.")
+      // Success animation
+      gsap.to(".submit-btn", {
+        scale: 1,
+        duration: 0.3,
+        ease: "back.out(2)",
+      })
+
+      setSuccess("Message sent! I'll get back to you soon.")
       form.reset()
-      setInterestSlug("")
-      setTimeline("")
-      setBudget("")
       setMsg("")
-      setRenderedAt(Date.now()) // reset timer for a future submit
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong while sending your message.")
+      setRenderedAt(Date.now())
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong."
+      setError(message)
+      gsap.to(".submit-btn", { scale: 1, duration: 0.2 })
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <section id="contact" className="border-t border-border">
+    <section ref={sectionRef} id="contact" className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">Contact</h2>
-        <p className="mt-2 text-muted-foreground max-w-prose">
-          Modern web apps and platforms with enterprise proven infrastructure.
+        <h2 className="contact-heading text-2xl md:text-3xl font-semibold tracking-tight">
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
+            <span className="relative inline-block">
+              Let's Talk
+              <span
+                aria-hidden
+                className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
+              />
+            </span>
+          </span>
+        </h2>
+        <p className="contact-subtext mt-2 text-muted-foreground max-w-prose">
+          Have a project in mind? Send me a message and I'll get back to you within 24 hours.
         </p>
 
         {/* Status messages */}
         {success && (
-          <Alert className="mt-4 border-emerald-500/40">
-            <AlertTitle>Message sent</AlertTitle>
+          <Alert className="mt-4 border-emerald-500/40 bg-emerald-500/10">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            <AlertTitle>Sent!</AlertTitle>
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
         {error && (
           <Alert className="mt-4 border-destructive/40">
-            <AlertTitle>Couldn’t send</AlertTitle>
+            <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <form className="mt-6 grid gap-4 sm:max-w-xl" method="post" onSubmit={handleSubmit} aria-busy={submitting}>
-          {/* Honeypot: present in DOM but visually off-screen (not display:none) */}
+        <form
+          ref={formRef}
+          className="mt-6 grid gap-4 sm:max-w-md"
+          method="post"
+          onSubmit={handleSubmit}
+          aria-busy={submitting}
+        >
+          {/* Honeypot */}
           <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden>
-            <Label htmlFor="company_website">Company website</Label>
-            <Input
-              id="company_website"
-              name="company_website"
-              tabIndex={-1}
-              autoComplete="off"
-              placeholder="Do not fill"
-            />
+            <Label htmlFor="company_website">Website</Label>
+            <Input id="company_website" name="company_website" tabIndex={-1} autoComplete="off" />
           </div>
 
-          <div className="grid gap-1.5">
+          <div className="form-field grid gap-1.5">
             <Label htmlFor="name">
               Name<span className="text-destructive">*</span>
             </Label>
-            <Input id="name" name="name" placeholder="Your name" autoComplete="name" required />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Your name"
+              autoComplete="name"
+              required
+              disabled={submitting}
+              className="transition-all focus:scale-[1.01]"
+            />
           </div>
 
-          <div className="grid gap-1.5">
+          <div className="form-field grid gap-1.5">
             <Label htmlFor="email">
               Email<span className="text-destructive">*</span>
             </Label>
-            <Input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+              disabled={submitting}
+              className="transition-all focus:scale-[1.01]"
+            />
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="org">Company / Org (optional)</Label>
-            <Input id="org" name="org" placeholder="Organization or personal" autoComplete="organization" />
-          </div>
-
-          {/* Service of interest */}
-          <div className="grid gap-1.5">
-            <Label>Service of interest (optional)</Label>
-            <Select value={interestSlug} onValueChange={setInterestSlug} disabled={submitting}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a service (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ssg">Marketing Sites and Landing Pages</SelectItem>
-                <SelectItem value="spa">SaaS Web App</SelectItem>
-                <SelectItem value="ssr">Personalized Web App (Server-Rendered)</SelectItem>
-                <SelectItem value="apis">Platform Integrations and APIs</SelectItem>
-                <SelectItem value="devops">Managed Cloud and DevOps</SelectItem>
-                <SelectItem value="kubernetes">Kubernetes Readiness and Scaling</SelectItem>
-                <SelectItem value="exploring">Just exploring</SelectItem>
-              </SelectContent>
-            </Select>
-            {/* mirror human-readable title into POST */}
-            <input type="hidden" name="interest" value={interestLabel} />
-          </div>
-
-          {/* Timeline */}
-          <div className="grid gap-1.5">
-            <Label>Timeline (optional)</Label>
-            <Select value={timeline} onValueChange={setTimeline} disabled={submitting}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a rough timeline" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ASAP">ASAP</SelectItem>
-                <SelectItem value="2–4 weeks">2–4 weeks</SelectItem>
-                <SelectItem value="4–6 weeks">4–6 weeks</SelectItem>
-                <SelectItem value="6–10 weeks">6–10 weeks</SelectItem>
-                <SelectItem value="Flexible">Flexible</SelectItem>
-              </SelectContent>
-            </Select>
-            <input type="hidden" name="timeline" value={timeline} />
-          </div>
-
-          {/* Budget */}
-          <div className="grid gap-1.5">
-            <Label>Budget (optional)</Label>
-            <Select value={budget} onValueChange={setBudget} disabled={submitting}>
-              <SelectTrigger>
-                <SelectValue placeholder="Pick a range (CAD)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="<5k">&lt; 5k</SelectItem>
-                <SelectItem value="5k–15k">5k–15k</SelectItem>
-                <SelectItem value="15k–30k">15k–30k</SelectItem>
-                <SelectItem value="30k–60k">30k–60k</SelectItem>
-                <SelectItem value="60k+">60k+</SelectItem>
-                <SelectItem value="Not sure yet">Not sure yet</SelectItem>
-              </SelectContent>
-            </Select>
-            <input type="hidden" name="budget" value={budget} />
-          </div>
-
-          {/* Project summary with counter */}
-          <div className="grid gap-1.5">
+          <div className="form-field grid gap-1.5">
             <Label htmlFor="msg">
-              Project summary<span className="text-destructive">*</span>
+              Message<span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="msg"
               name="message"
-              placeholder="Goals, current state, key features, and constraints…"
+              placeholder="Tell me about your project..."
               maxLength={MSG_LIMIT}
               value={msg}
               onChange={(e) => setMsg(e.target.value)}
               required
               disabled={submitting}
+              className="min-h-[120px] transition-all focus:scale-[1.005]"
             />
-            <div className="flex items-center justify-end text-xs text-muted-foreground" aria-live="polite">
+            <div className="text-xs text-muted-foreground text-right" aria-live="polite">
               {msg.length}/{MSG_LIMIT}
             </div>
           </div>
 
-          {/* Privacy note as an accordion to reduce visual weight */}
-          <Accordion type="single" collapsible className="mt-1">
-            <AccordionItem value="privacy">
-              <AccordionTrigger className="text-xs text-muted-foreground">
-                Privacy &amp; compliance details
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="text-xs text-muted-foreground">
-                  Privacy by design is included. Canada PIPEDA and CASL are observed. GDPR support is available when your
-                  audience includes the EU. Sub processors are disclosed in contracts. Consent is captured for non essential
-                  trackers.
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <div className="mt-4">
-            <Button type="submit" disabled={submitting}>
+          <div className="form-field mt-2">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="submit-btn gap-2 w-full sm:w-auto"
+            >
               {submitting ? (
-                <span className="inline-flex items-center gap-2">
+                <>
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                  Sending…
-                </span>
+                  Sending...
+                </>
               ) : (
-                "Start a project"
+                <>
+                  <Send className="h-4 w-4" aria-hidden />
+                  Send Message
+                </>
               )}
             </Button>
           </div>
+
+          <p className="form-field text-xs text-muted-foreground mt-2">
+            Privacy by design. PIPEDA/CASL compliant. GDPR support available.
+          </p>
         </form>
       </div>
     </section>

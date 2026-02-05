@@ -100,12 +100,13 @@ function Reveal({
 
       gsap.fromTo(
         ref.current,
-        { opacity: 0, y },
+        { opacity: 0, y, clipPath: "inset(0 100% 0 0)" },
         {
           opacity: 1,
           y: 0,
-          duration: 0.28,
-          ease: "power2.out",
+          clipPath: "inset(0 0% 0 0)",
+          duration: 0.6,
+          ease: "power3.out",
           delay,
           scrollTrigger: {
             trigger: ref.current,
@@ -276,13 +277,21 @@ export function Projects() {
 
     gsap.fromTo(
       ".project-card-wrapper",
-      { opacity: 0, y: 20 },
+      {
+        opacity: 0,
+        y: 40,
+        scale: 0.92,
+        rotationX: -12,
+        transformOrigin: "50% 0%"
+      },
       {
         opacity: 1,
         y: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
+        scale: 1,
+        rotationX: 0,
+        duration: 0.6,
+        stagger: 0.12,
+        ease: "power3.out",
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top 70%",
@@ -321,7 +330,7 @@ export function Projects() {
           <p className="mt-2 text-muted-foreground">Recent work and experiments.</p>
         </Reveal>
 
-        <div className="mt-6">
+        <div className="mt-6" style={{ perspective: "1200px" }}>
           <TooltipProvider>
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
               <CarouselContent>

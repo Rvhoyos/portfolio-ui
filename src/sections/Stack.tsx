@@ -68,7 +68,7 @@ const buckets: Record<string, BucketItem[]> = {
     { label: "OAuth2/SSO", desc: "Short-lived tokens, refresh cookies (HttpOnly, Secure), role-based access." },
     { label: "CSP + headers", desc: "CSP (nonces), HSTS, and Referrer Policy by default." },
     { label: "Rate-limits & logs", desc: "Abuse protection with request IDs and structured logs." },
-    { label: "PIPEDA/CASL baseline - GDPR add-on", desc: "Privacy by design - consent for non-essential trackers." },
+    { label: "PIPEDA/CASL & GDPR awareness", desc: "Privacy-first builds with consent flows and minimal data collection." },
   ],
 
   "Testing & Quality": [
@@ -123,150 +123,268 @@ const bucketIcons: Record<string, LucideIcon> = {
 export function Stack() {
   const [activeTab, setActiveTab] = useState("Frontend")
   const containerRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-  // Use GSAP for the Item Stagger
+  // Section entrance animation
   useGSAP(() => {
-    // Target only the visible items in the active tab (Radix unmounts inactive ones)
-    const items = gsap.utils.toArray<HTMLElement>(".stack-item")
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
 
-    if (items.length > 0) {
-      // We attach a ScrollTrigger to the FIRST animation so it waits for view.
-      // Subsequent tab switches will likely be in view, so ST will fire immediately.
-      gsap.fromTo(
-        items,
-        {
-          y: 30,
-          autoAlpha: 0,
-          scale: 0.9
-        },
-        {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          stagger: {
-            amount: 0.3,
-            grid: "auto",
-            from: "start"
-          },
-          ease: "back.out(1.7)",
-          duration: 0.5,
-          overwrite: "auto",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top 65%",
-            toggleActions: "play none none reverse"
-          }
-        }
-      )
-    }
-  }, {
-    dependencies: [activeTab],
-    scope: containerRef
-  })
-
-  // Use GSAP for the Section Reveal (Header + Intro + Pills)
-  useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: "#stack",
-        start: "top 70%", // Triggers later, ensuring visibility
-        toggleActions: "play none none reverse"
+        start: "top 75%",
+        once: true,
       }
     })
 
+    // Heading with split effect
     tl.fromTo(
       "#stack-header",
-      { y: 30, autoAlpha: 0 },
-      { y: 0, autoAlpha: 1, duration: 0.8, ease: "power3.out" }
+      { y: 40, opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { y: 0, opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.8, ease: "power3.out" }
     )
-      .fromTo(
-        "#stack-intro",
-        { y: 20, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.6, ease: "power3.out" },
-        "-=0.6"
-      )
-      .fromTo(
-        ".stack-pills",
-        { y: 10, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.5, ease: "power2.out" },
-        "-=0.4"
-      )
+
+    // Intro text
+    tl.fromTo(
+      "#stack-intro",
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+      "-=0.4"
+    )
+
+    // Tab pills cascade
+    tl.fromTo(
+      ".stack-pill",
+      { scale: 0.8, opacity: 0, y: 10 },
+      {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        stagger: 0.05,
+        ease: "back.out(2)"
+      },
+      "-=0.3"
+    )
+
+    // Card container
+    tl.fromTo(
+      ".stack-card",
+      { y: 30, opacity: 0, scale: 0.98 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" },
+      "-=0.2"
+    )
 
   }, { scope: containerRef })
+
+  // Item stagger on tab change with 3D flip
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    const items = gsap.utils.toArray<HTMLElement>(".stack-item")
+    if (items.length === 0) return
+
+    gsap.fromTo(
+      items,
+      {
+        y: 25,
+        opacity: 0,
+        rotationX: -15,
+        transformOrigin: "50% 0%",
+      },
+      {
+        y: 0,
+        opacity: 1,
+        rotationX: 0,
+        stagger: {
+          each: 0.06,
+          from: "start",
+        },
+        ease: "power3.out",
+        duration: 0.5,
+        overwrite: "auto",
+      }
+    )
+  }, {
+    dependencies: [activeTab],
+    scope: cardRef
+  })
+
+  // Tab pill hover effects
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    const pills = document.querySelectorAll(".stack-pill")
+
+    pills.forEach((pill) => {
+      const onEnter = () => {
+        gsap.to(pill, { scale: 1.05, y: -2, duration: 0.25, ease: "power2.out" })
+      }
+      const onLeave = () => {
+        gsap.to(pill, { scale: 1, y: 0, duration: 0.3, ease: "elastic.out(1, 0.5)" })
+      }
+
+      pill.addEventListener("mouseenter", onEnter)
+      pill.addEventListener("mouseleave", onLeave)
+    })
+  }, { scope: containerRef })
+
+  // Stack item hover effects
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReduced) return
+
+    const items = document.querySelectorAll(".stack-item")
+
+    items.forEach((item) => {
+      const icon = item.querySelector(".stack-icon")
+
+      const onEnter = () => {
+        gsap.to(item, {
+          scale: 1.02,
+          y: -2,
+          boxShadow: "0 8px 25px -8px hsl(var(--primary) / 0.15)",
+          borderColor: "hsl(var(--primary) / 0.3)",
+          duration: 0.3,
+          ease: "power2.out"
+        })
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1.2,
+            rotation: 360,
+            color: "hsl(var(--primary))",
+            duration: 0.4,
+            ease: "back.out(2)"
+          })
+        }
+      }
+
+      const onLeave = () => {
+        gsap.to(item, {
+          scale: 1,
+          y: 0,
+          boxShadow: "none",
+          borderColor: "hsl(var(--border) / 0.6)",
+          duration: 0.4,
+          ease: "elastic.out(1, 0.5)"
+        })
+        if (icon) {
+          gsap.to(icon, {
+            scale: 1,
+            rotation: 0,
+            color: "currentColor",
+            duration: 0.3,
+            ease: "power2.out"
+          })
+        }
+      }
+
+      item.addEventListener("mouseenter", onEnter)
+      item.addEventListener("mouseleave", onLeave)
+    })
+  }, { dependencies: [activeTab], scope: cardRef })
 
   return (
     <section id="stack" ref={containerRef} className="border-t border-border">
       <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
 
-        {/* Header with Dot */}
-        <div id="stack-header">
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight flex items-center gap-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            Stack
+        {/* Header with animated dot */}
+        <div id="stack-header" className="flex items-center gap-3">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
+          </span>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+            <span className="relative inline-block">
+              Stack
+              <span
+                aria-hidden
+                className="absolute inset-x-0 -bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary/50 to-primary/0"
+              />
+            </span>
           </h2>
         </div>
 
         {/* Intro Text - Preserved Exactly */}
-        <div id="stack-intro">
-          <p className="mt-2 text-muted-foreground">
-            Tools and practices I use day-to-day and what your build can ship with.
-          </p>
-        </div>
+        <p id="stack-intro" className="mt-3 text-muted-foreground max-w-xl">
+          Tools and practices I use day-to-day and what your build can ship with.
+        </p>
 
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           defaultValue="Frontend"
-          className="mt-6"
+          className="mt-8"
         >
-          {/* Pills: wrap by default; single row on lg+ */}
-          <TabsList className="stack-pills h-auto flex-wrap gap-2 justify-start max-w-full md:flex-wrap lg:h-10 lg:flex-nowrap">
-            {Object.keys(buckets).map((k) => (
-              <TabsTrigger key={k} value={k} className="whitespace-nowrap rounded-full">
-                {k}
-              </TabsTrigger>
-            ))}
+          {/* Pills with enhanced styling */}
+          <TabsList className="h-auto flex-wrap gap-2 justify-start max-w-full bg-transparent p-0">
+            {Object.keys(buckets).map((k) => {
+              const Icon = bucketIcons[k]
+              return (
+                <TabsTrigger
+                  key={k}
+                  value={k}
+                  className="stack-pill whitespace-nowrap rounded-full border border-border/60 bg-muted/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all will-change-transform gap-1.5"
+                >
+                  {Icon && <Icon className="h-3.5 w-3.5" aria-hidden />}
+                  <span className="hidden sm:inline">{k}</span>
+                  <span className="sm:hidden">{k.split(" ")[0]}</span>
+                </TabsTrigger>
+              )
+            })}
           </TabsList>
 
           {Object.entries(buckets).map(([k, items]) => {
             const Icon = bucketIcons[k] ?? CheckCircle2
             return (
               <TabsContent key={k} value={k} className="mt-6 outline-none">
-                <Card className="border-border/70">
-                  <CardHeader className="pb-3">
+                <Card ref={cardRef} className="stack-card border-border/60 bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm shadow-lg">
+                  <CardHeader className="pb-4 border-b border-border/40">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 opacity-70" aria-hidden="true" />
-                        <CardTitle className="text-base">{k}</CardTitle>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+                        </div>
+                        <CardTitle className="text-lg">{k}</CardTitle>
                       </div>
-                      <Badge variant="secondary">{items.length} items</Badge>
+                      <Badge variant="secondary" className="rounded-full px-3">
+                        {items.length} items
+                      </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
-
-                    {/* Grid of items */}
-                    <div className="grid gap-3 sm:grid-cols-2">
+                  <CardContent className="pt-6">
+                    {/* Grid of items with enhanced cards */}
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
                       {items.map((item, i) => {
                         const data = typeof item === "string" ? { label: item } : item
                         return (
                           <div
                             key={i}
-                            className="stack-item rounded-lg border border-border/60 bg-muted/30 p-3"
+                            className="stack-item group rounded-xl border border-border/50 bg-background/80 p-4 transition-all cursor-default will-change-transform"
+                            style={{ transformStyle: "preserve-3d" }}
                           >
                             <div className="flex items-start gap-3">
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 opacity-70" aria-hidden="true" />
-                              <div>
-                                <div className="text-sm font-medium">{data.label}</div>
-                                {data.desc ? (
-                                  <p className="text-xs text-muted-foreground">{data.desc}</p>
-                                ) : null}
+                              <div className="mt-0.5 p-1.5 rounded-lg bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                                <CheckCircle2 className="stack-icon h-4 w-4 opacity-70 transition-all" aria-hidden="true" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors">
+                                  {data.label}
+                                </div>
+                                {data.desc && (
+                                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                    {data.desc}
+                                  </p>
+                                )}
                               </div>
                             </div>
                           </div>
                         )
                       })}
                     </div>
-
                   </CardContent>
                 </Card>
               </TabsContent>

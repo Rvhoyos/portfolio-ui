@@ -10,17 +10,16 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog"
 import {
-  Sun, Moon, Info, Boxes, Wrench, LayoutDashboard, Mail, PenLine
+  Sun, Moon, Info, Boxes, LayoutDashboard, Mail
 } from "lucide-react"
 
 type LinkItem = { href: `#${string}`; label: string; Icon?: React.ComponentType<{ className?: string }> }
 
 const links: LinkItem[] = [
+  { href: "#author", label: "Author", Icon: Info },
   { href: "#about", label: "About", Icon: Info },
   { href: "#stack", label: "Stack", Icon: Boxes },
-  { href: "#services", label: "Services", Icon: Wrench },
   { href: "#projects", label: "Projects", Icon: LayoutDashboard },
-  { href: "#blog", label: "Blog", Icon: PenLine },
   { href: "#contact", label: "Contact", Icon: Mail },
 ]
 
@@ -110,7 +109,7 @@ export function Header() {
   const [soonOpen, setSoonOpen] = useState(false)
   const { scrolled, progress } = useScrollInfo()
   const { toggle } = useTheme()
-  const active = useActiveSection(["about", "stack", "services", "projects", "blog", "contact"])
+  const active = useActiveSection(["author", "about", "stack", "projects", "contact"])
 
   return (
     <TooltipProvider>

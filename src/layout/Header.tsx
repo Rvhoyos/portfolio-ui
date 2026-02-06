@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import {
   Sun, Moon, Info, Boxes, LayoutDashboard, Mail
 } from "lucide-react"
+import { ClientDashboardModal } from "@/components/ClientDashboardModal"
 
 type LinkItem = { href: `#${string}`; label: string; Icon?: React.ComponentType<{ className?: string }> }
 
@@ -183,11 +184,11 @@ export function Header() {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            <Button asChild size="sm">
-              <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">
+            <ClientDashboardModal>
+              <Button size="sm">
                 Client Area
-              </a>
-            </Button>
+              </Button>
+            </ClientDashboardModal>
           </div>
 
           {/* Mobile nav */}
@@ -243,9 +244,14 @@ export function Header() {
 
                       {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
                       <Button asChild className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate">
-                        <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>
-                          Client Area
-                        </a>
+                        <ClientDashboardModal>
+                          <Button
+                            className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
+                            onClick={() => setOpen(false)}
+                          >
+                            Client Area
+                          </Button>
+                        </ClientDashboardModal>
                       </Button>
                     </div>
                   </div>

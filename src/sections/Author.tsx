@@ -73,9 +73,16 @@ export function Author() {
                         </h2>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            Software and Electronics enthusiast with a passion for all things that compute.
-                            This obsession began as a child with my first gaming console, a Nintendo 64.
-                            The itch continues today as I develop enterprise applications and experiment with new technologies.
+                            Software and Electronics enthusiast
+                            <br />
+                            with a passion for all things that compute.
+                            <br />
+                            This obsession began with my first gaming console, a Nintendo 64.
+                        </p>
+                        <p className="text-muted-foreground leading-relaxed mt-4">
+                            The itch continues today as I develop
+                            <br />
+                            and experiment with new technologies.
                         </p>
                     </div>
                 </div>

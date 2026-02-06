@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { SiGradle } from "@icons-pack/react-simple-icons"
 import { useRef, useEffect, type SVGProps, type ComponentType } from "react"
@@ -242,7 +241,7 @@ export function Hero() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="hero" className="perspective-[1000px]">
+    <section ref={sectionRef} id="hero" className="perspective-[1000px] min-h-[100vh] flex items-center">
       <div className="mx-auto w-full max-w-7xl px-4 py-16 md:py-24">
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           {/* Left: copy */}
@@ -274,21 +273,15 @@ export function Hero() {
             </p>
 
             {/* CTAs */}
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="hero-cta will-change-transform">
-                <a href="#contact">Start a project</a>
+                <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">Start a project</a>
               </Button>
               <Button asChild variant="outline" size="lg" className="hero-cta will-change-transform">
-                <a href="#services">How I work</a>
+                <a href="#contact">Get in touch</a>
               </Button>
             </div>
 
-            {/* Badge */}
-            <div className="mt-8 inline-flex">
-              <Badge variant="secondary" className="hero-badge rounded-full text-sm px-4 py-1.5">
-                Consulting &amp; Engineering
-              </Badge>
-            </div>
           </div>
 
           {/* Right: Tech stack grid with magnetic hover */}

@@ -132,7 +132,7 @@ export function Stack() {
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: "#stack",
+        trigger: containerRef.current,
         start: "top 75%",
         once: true,
       }
@@ -183,8 +183,8 @@ export function Stack() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (prefersReduced) return
 
-    const items = gsap.utils.toArray<HTMLElement>(".stack-item")
-    if (items.length === 0) return
+    const items = cardRef.current?.querySelectorAll<HTMLElement>(".stack-item")
+    if (!items || items.length === 0) return
 
     gsap.fromTo(
       items,
@@ -217,9 +217,9 @@ export function Stack() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (prefersReduced) return
 
-    const pills = document.querySelectorAll(".stack-pill")
+    const pills = containerRef.current?.querySelectorAll(".stack-pill")
 
-    pills.forEach((pill) => {
+    pills?.forEach((pill) => {
       const onEnter = () => {
         gsap.to(pill, { scale: 1.05, y: -2, duration: 0.25, ease: "power2.out" })
       }
@@ -237,9 +237,9 @@ export function Stack() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (prefersReduced) return
 
-    const items = document.querySelectorAll(".stack-item")
+    const items = cardRef.current?.querySelectorAll(".stack-item")
 
-    items.forEach((item) => {
+    items?.forEach((item) => {
       const icon = item.querySelector(".stack-icon")
 
       const onEnter = () => {
@@ -289,7 +289,7 @@ export function Stack() {
 
   return (
     <section id="stack" ref={containerRef} className="border-t border-border">
-      <div className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
+      <div className="mx-auto w-full max-w-7xl px-4 py-4 md:py-6">
 
         {/* Header with animated dot */}
         <div id="stack-header" className="flex items-center gap-3">
@@ -297,7 +297,7 @@ export function Stack() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40" />
             <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
           </span>
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+          <h2 className="text-lg md:text-xl font-semibold tracking-tight">
             <span className="relative inline-block">
               Stack
               <span
@@ -309,7 +309,7 @@ export function Stack() {
         </div>
 
         {/* Intro Text - Preserved Exactly */}
-        <p id="stack-intro" className="mt-3 text-muted-foreground max-w-xl">
+        <p id="stack-intro" className="mt-1 text-sm text-muted-foreground max-w-xl">
           Tools and practices I use day-to-day and what your build can ship with.
         </p>
 
@@ -317,17 +317,17 @@ export function Stack() {
           value={activeTab}
           onValueChange={setActiveTab}
           defaultValue="Frontend"
-          className="mt-8"
+          className="mt-4"
         >
           {/* Pills with enhanced styling */}
-          <TabsList className="h-auto flex-wrap gap-2 justify-start max-w-full bg-transparent p-0">
+          <TabsList className="h-auto flex-wrap gap-1 justify-start max-w-full bg-transparent p-0">
             {Object.keys(buckets).map((k) => {
               const Icon = bucketIcons[k]
               return (
                 <TabsTrigger
                   key={k}
                   value={k}
-                  className="stack-pill whitespace-nowrap rounded-full border border-border/60 bg-muted/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all will-change-transform gap-1.5"
+                  className="stack-pill text-xs whitespace-nowrap rounded-full border border-border/60 bg-muted/50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary transition-all will-change-transform gap-1 px-2 py-1"
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" aria-hidden />}
                   <span className="hidden sm:inline">{k}</span>
@@ -340,9 +340,9 @@ export function Stack() {
           {Object.entries(buckets).map(([k, items]) => {
             const Icon = bucketIcons[k] ?? CheckCircle2
             return (
-              <TabsContent key={k} value={k} className="mt-6 outline-none">
+              <TabsContent key={k} value={k} className="mt-3 outline-none">
                 <Card ref={cardRef} className="stack-card border-border/60 bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm shadow-lg">
-                  <CardHeader className="pb-4 border-b border-border/40">
+                  <CardHeader className="pb-2 pt-3 px-4 border-b border-border/40">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-primary/10">
@@ -355,23 +355,22 @@ export function Stack() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-3 pb-3 px-4">
                     {/* Grid of items with enhanced cards */}
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
-                      {items.map((item, i) => {
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
+                      {items.map((item) => {
                         const data = typeof item === "string" ? { label: item } : item
                         return (
                           <div
-                            key={i}
-                            className="stack-item group rounded-xl border border-border/50 bg-background/80 p-4 transition-all cursor-default will-change-transform"
-                            style={{ transformStyle: "preserve-3d" }}
+                            key={data.label}
+                            className="stack-item group rounded-lg border border-border/50 bg-background/80 p-2 transition-all cursor-default will-change-transform [transform-style:preserve-3d]"
                           >
-                            <div className="flex items-start gap-3">
-                              <div className="mt-0.5 p-1.5 rounded-lg bg-primary/5 group-hover:bg-primary/10 transition-colors">
-                                <CheckCircle2 className="stack-icon h-4 w-4 opacity-70 transition-all" aria-hidden="true" />
+                            <div className="flex items-start gap-2">
+                              <div className="p-1 rounded bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                                <CheckCircle2 className="stack-icon h-3 w-3 opacity-70 transition-all" aria-hidden="true" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-semibold text-foreground/90 group-hover:text-foreground transition-colors">
+                                <div className="text-xs font-semibold text-foreground/90 group-hover:text-foreground transition-colors">
                                   {data.label}
                                 </div>
                                 {data.desc && (

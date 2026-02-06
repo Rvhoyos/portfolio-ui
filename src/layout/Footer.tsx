@@ -1,10 +1,7 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
-} from "@/components/ui/dialog"
+
 import { SiGithub } from "@icons-pack/react-simple-icons"
 
 // Minimal inline LinkedIn brand icon (avoids deprecated import)
@@ -17,7 +14,6 @@ function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function Footer() {
-  const [soonOpen, setSoonOpen] = useState(false)
   const year = new Date().getFullYear()
 
   return (
@@ -39,14 +35,11 @@ export function Footer() {
                 Reliable, observable and scalable modern web apps, APIs, and DevOps services.
               </p>
               <div className="mt-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button size="sm" variant="outline" type="button" onClick={() => setSoonOpen(true)}>
-                      Client Area
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Coming soon</TooltipContent>
-                </Tooltip>
+                <Button asChild size="sm" variant="outline">
+                  <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">
+                    Client Area
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -133,23 +126,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Coming soon dialog */}
-        <Dialog open={soonOpen} onOpenChange={setSoonOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Client Area</DialogTitle>
-              <DialogDescription>
-                Private sign-in and project portal are on the roadmap.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="text-sm text-muted-foreground">
-              You’ll be able to review proposals, track deployments, and manage billing.
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={() => setSoonOpen(false)}>Okay</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </footer>
     </TooltipProvider>
   )

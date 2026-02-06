@@ -142,7 +142,7 @@ function IconTile({ title }: { title: string }) {
       />
       {/* content */}
       <div className="relative z-10 grid h-full w-full place-items-center">
-        <Icon className="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 text-foreground/85 transition-transform duration-300 group-hover:scale-[1.02]" />
+        <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-foreground/85 transition-transform duration-300 group-hover:scale-[1.02]" />
         <span
           className="absolute left-2 top-2 rounded-md border border-border/60 bg-background/70 px-1.5 py-0.5
                      text-[10px] font-medium tracking-wide text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-background/50"
@@ -220,7 +220,7 @@ function ProjectCard({ p }: { p: Project }) {
         <CardHeader className="pb-2 relative z-20">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <CardTitle className="text-base">{p.title}</CardTitle>
+              <CardTitle className="text-sm">{p.title}</CardTitle>
             </div>
 
             {/* Link buttons (render only if provided) */}
@@ -228,7 +228,7 @@ function ProjectCard({ p }: { p: Project }) {
               {p.links?.github && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button asChild size="sm" variant="outline" className="h-8">
+                    <Button asChild size="sm" variant="outline" className="h-6 text-xs px-2">
                       <a href={p.links.github} target="_blank" rel="noreferrer">
                         <SiGithub className="mr-1.5 h-3.5 w-3.5" />
                         GitHub
@@ -241,7 +241,7 @@ function ProjectCard({ p }: { p: Project }) {
               {p.links?.live && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button asChild size="sm" variant="ghost" className="h-8">
+                    <Button asChild size="sm" variant="ghost" className="h-6 text-xs px-2">
                       <a href={p.links.live} target="_blank" rel="noreferrer">
                         <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
                         Live
@@ -254,12 +254,12 @@ function ProjectCard({ p }: { p: Project }) {
             </div>
           </div>
 
-          <CardDescription className="mt-1 text-sm">{p.desc}</CardDescription>
+          <CardDescription className="mt-1 text-xs line-clamp-2">{p.desc}</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-3 relative z-20">
           {/* Icon placeholder — now visible on ALL breakpoints for parity */}
-          <AspectRatio ratio={16 / 9} className="rounded-md bg-transparent overflow-hidden">
+          <AspectRatio ratio={16 / 7} className="rounded-md bg-transparent overflow-hidden">
             <IconTile title={p.title} />
           </AspectRatio>
         </CardContent>
@@ -303,7 +303,7 @@ export function Projects() {
 
   return (
     <section id="projects" className="border-t border-border">
-      <div ref={containerRef} className="relative mx-auto w-full max-w-7xl px-4 pt-14 pb-10 md:pt-16 md:pb-12">
+      <div ref={containerRef} className="relative mx-auto w-full max-w-7xl px-4 pt-4 pb-4 md:pt-6 md:pb-6">
         {/* background polish: faint dots + two blurred glows */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
@@ -312,7 +312,7 @@ export function Projects() {
         </div>
 
         <Reveal>
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+          <h2 className="text-lg md:text-xl font-semibold tracking-tight">
             <span className="inline-flex items-center gap-2">
               <span aria-hidden className="h-2 w-2 rounded-full bg-primary/70" />
               <span className="relative inline-block">
@@ -327,10 +327,10 @@ export function Projects() {
         </Reveal>
 
         <Reveal delay={0.05}>
-          <p className="mt-2 text-muted-foreground">Recent work and experiments.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Recent work and experiments.</p>
         </Reveal>
 
-        <div className="mt-6" style={{ perspective: "1200px" }}>
+        <div className="mt-3 [perspective:1200px]">
           <TooltipProvider>
             <Carousel opts={{ align: "start", loop: true }} className="w-full">
               <CarouselContent>

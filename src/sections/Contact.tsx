@@ -12,7 +12,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
-const API_ENDPOINT = "/api/contact/lead"
+const API_ENDPOINT = "https://portfolioform.raultheta.workers.dev"
 const MIN_T_MS = 1500
 const MAX_T_MS = 2 * 60 * 60 * 1000
 
@@ -140,7 +140,6 @@ function ContactForm() {
       name: (fd.get("name") as string)?.trim(),
       email: (fd.get("email") as string)?.trim(),
       message: msg.trim(),
-      meta: { path: window.location.pathname, timestamp: new Date().toISOString(), tookMs },
     }
 
     if (!payload.name || !payload.email || !payload.message) { setError("Please fill in all fields."); return }

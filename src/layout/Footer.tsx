@@ -97,7 +97,7 @@ export function Footer() {
                   <a href="/privacy" className="hover:text-foreground">Privacy</a>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs text-xs">
-                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages up to 12 to 24 months or deleted on request.
+                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages retained 12 to 24 months or deleted on request.
                 </TooltipContent>
               </Tooltip>
 
@@ -119,7 +119,7 @@ export function Footer() {
                   <a href="/cookies" className="hover:text-foreground">Cookies</a>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs text-xs">
-                  I only use essential cookies by default. I do not set third party tracking cookies. If I add analytics later you can choose.
+                  This portfolio is static and uses no cookies. The linked Client Portal requires essential cookies for authentication if you sign in.
                 </TooltipContent>
               </Tooltip>
             </div>

@@ -1,10 +1,7 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
-} from "@/components/ui/dialog"
+
 import { SiGithub } from "@icons-pack/react-simple-icons"
 
 // Minimal inline LinkedIn brand icon (avoids deprecated import)
@@ -17,7 +14,6 @@ function LinkedInIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export function Footer() {
-  const [soonOpen, setSoonOpen] = useState(false)
   const year = new Date().getFullYear()
 
   return (
@@ -39,14 +35,11 @@ export function Footer() {
                 Reliable, observable and scalable modern web apps, APIs, and DevOps services.
               </p>
               <div className="mt-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button size="sm" variant="outline" type="button" onClick={() => setSoonOpen(true)}>
-                      Client Area
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Coming soon</TooltipContent>
-                </Tooltip>
+                <Button asChild size="sm" variant="outline">
+                  <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">
+                    Client Area
+                  </a>
+                </Button>
               </div>
             </div>
 
@@ -104,7 +97,7 @@ export function Footer() {
                   <a href="/privacy" className="hover:text-foreground">Privacy</a>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs text-xs">
-                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages up to 12 to 24 months or deleted on request.
+                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages retained 12 to 24 months or deleted on request.
                 </TooltipContent>
               </Tooltip>
 
@@ -126,30 +119,13 @@ export function Footer() {
                   <a href="/cookies" className="hover:text-foreground">Cookies</a>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs text-xs">
-                  I only use essential cookies by default. I do not set third party tracking cookies. If I add analytics later you can choose.
+                  This portfolio is static and uses no cookies. The linked Client Portal requires essential cookies for authentication if you sign in.
                 </TooltipContent>
               </Tooltip>
             </div>
           </div>
         </div>
 
-        {/* Coming soon dialog */}
-        <Dialog open={soonOpen} onOpenChange={setSoonOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Client Area</DialogTitle>
-              <DialogDescription>
-                Private sign-in and project portal are on the roadmap.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="text-sm text-muted-foreground">
-              You’ll be able to review proposals, track deployments, and manage billing.
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={() => setSoonOpen(false)}>Okay</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </footer>
     </TooltipProvider>
   )

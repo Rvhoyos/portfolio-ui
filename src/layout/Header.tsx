@@ -1,24 +1,20 @@
-import { useEffect, useState } from "react"
+import { useRef, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink,
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
-} from "@/components/ui/dialog"
-import {
-  Sun, Moon, Info, Boxes, Wrench, LayoutDashboard, Mail
+  Sun, Moon, Info, Boxes, LayoutDashboard, Mail
 } from "lucide-react"
 
 type LinkItem = { href: `#${string}`; label: string; Icon?: React.ComponentType<{ className?: string }> }
 
 const links: LinkItem[] = [
+  { href: "#author", label: "Author", Icon: Info },
   { href: "#about", label: "About", Icon: Info },
   { href: "#stack", label: "Stack", Icon: Boxes },
-  { href: "#services", label: "Services", Icon: Wrench },
   { href: "#projects", label: "Projects", Icon: LayoutDashboard },
   { href: "#contact", label: "Contact", Icon: Mail },
 ]
@@ -77,9 +73,13 @@ function useTheme() {
 
 function useActiveSection(ids: string[], offset = 120) {
   const [active, setActive] = useState<string>(ids[0] ?? "")
+  const activeRef = useRef(active)
+
+  useEffect(() => { activeRef.current = active }, [active])
+
   useEffect(() => {
     const handler = () => {
-      let current = active
+      let current = activeRef.current
       let bestTop = Number.POSITIVE_INFINITY
       for (const id of ids) {
         const el = document.getElementById(id)
@@ -91,7 +91,9 @@ function useActiveSection(ids: string[], offset = 120) {
           current = id
         }
       }
-      setActive(current)
+      if (current !== activeRef.current) {
+        setActive(current)
+      }
     }
     handler()
     window.addEventListener("scroll", handler, { passive: true })
@@ -104,181 +106,156 @@ function useActiveSection(ids: string[], offset = 120) {
   return active
 }
 
+const SECTION_IDS = ["author", "about", "stack", "projects", "contact"]
+
 export function Header() {
   const [open, setOpen] = useState(false)
-  const [soonOpen, setSoonOpen] = useState(false)
   const { scrolled, progress } = useScrollInfo()
   const { toggle } = useTheme()
-  const active = useActiveSection(["about", "stack", "services", "projects", "contact"])
+  const active = useActiveSection(SECTION_IDS)
 
   return (
-    <TooltipProvider>
-      <header className="sticky top-0 z-50">
-        {/* progress bar */}
+    <header className="sticky top-0 z-50">
+      {/* progress bar */}
+      <div
+        aria-hidden
+        className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
+        style={{ transform: `scaleX(${progress})` }}
+      />
+
+      {/* glass header */}
+      <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div
           aria-hidden
-          className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
-          style={{ transform: `scaleX(${progress})` }}
+          className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"
+            }`}
         />
 
-        {/* glass header */}
-        <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div
-            aria-hidden
-            className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${
-              scrolled ? "opacity-100" : "opacity-0"
-            }`}
-          />
+        <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
+          <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
+            <span
+              className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
+                         group-hover:bg-gradient-to-r group-hover:from-foreground group-hover:to-primary/80
+                         group-hover:bg-clip-text group-hover:text-transparent"
+            >
+              Raul Hoyos
+            </span>
+          </a>
 
-          <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
-            <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
-              <span
-                className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
-                           group-hover:bg-gradient-to-r group-hover:from-foreground group-hover:to-primary/80
-                           group-hover:bg-clip-text group-hover:text-transparent"
-              >
-                Raul Hoyos
-              </span>
-            </a>
+          {/* Desktop nav */}
+          <nav className="ml-auto hidden md:block">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {links.map((l) => {
+                  const isActive = active && l.href === `#${active}`
+                  return (
+                    <NavigationMenuItem key={l.href}>
+                      <NavigationMenuLink
+                        href={l.href}
+                        aria-current={isActive ? "page" : undefined}
+                        className={[
+                          "relative rounded-full px-2 py-1.5 text-sm transition-colors",
+                          isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
+                          "hover:text-foreground",
+                        ].join(" ")}
+                      >
+                        {l.label}
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  )
+                })}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
 
-            {/* Desktop nav */}
-            <nav className="ml-auto hidden md:block">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {links.map((l) => {
-                    const isActive = active && l.href === `#${active}`
-                    return (
-                      <NavigationMenuItem key={l.href}>
-                        <NavigationMenuLink
-                          href={l.href}
-                          aria-current={isActive ? "page" : undefined}
+          {/* Desktop actions */}
+          <div className="hidden md:flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              type="button"
+              aria-label="Toggle theme"
+              onClick={toggle}
+              className="h-8 w-8"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
+            <Button asChild size="sm">
+              <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">
+                Client Area
+              </a>
+            </Button>
+          </div>
+
+          {/* Mobile nav */}
+          <div className="ml-auto md:hidden">
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
+              </SheetTrigger>
+
+              {/* Adaptive narrow sheet; box-border avoids clipping from border width */}
+              <SheetContent side="right" className="w-[min(92vw,20rem)] box-border p-0">
+                <div className="flex h-full flex-col">
+                  {/* Body */}
+                  <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3 space-y-1">
+                    {links.map(({ href, label, Icon }) => {
+                      const isActive = active && href === `#${active}`
+                      return (
+                        <a
+                          key={href}
+                          href={href}
+                          onClick={() => setOpen(false)}
                           className={[
-                            "relative rounded-full px-2 py-1.5 text-sm transition-colors",
-                            isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
-                            "hover:text-foreground",
+                            "flex items-center gap-2 rounded px-2 py-2 transition-colors",
+                            "hover:bg-muted/70 dark:hover:bg-muted/40",
+                            isActive ? "bg-primary/10 dark:bg-primary/15" : "",
                           ].join(" ")}
                         >
-                          {l.label}
-                        </NavigationMenuLink>
-                      </NavigationMenuItem>
-                    )
-                  })}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </nav>
+                          {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
+                          <span className="min-w-0">{label}</span>
+                        </a>
+                      )
+                    })}
 
-            {/* Desktop actions */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                type="button"
-                aria-label="Toggle theme"
-                onClick={toggle}
-                className="h-8 w-8"
-              >
-                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
+                    <Separator className="my-3" />
+                  </div>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button size="sm" type="button" aria-label="Client Area" onClick={() => setSoonOpen(true)}>
-                    Client Area
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Coming soon</TooltipContent>
-              </Tooltip>
-            </div>
+                  {/* Footer: resize ONLY the CTA button; add safe-area padding to avoid right-edge cutoffs */}
+                  <div
+                    className="border-t border-border bg-background/95 px-3 py-2"
+                    style={{ paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        className="shrink-0 h-8 w-8"
+                        type="button"
+                        onClick={toggle}
+                        aria-label="Toggle theme"
+                      >
+                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                      </Button>
 
-            {/* Mobile nav */}
-            <div className="ml-auto md:hidden">
-              <Sheet open={open} onOpenChange={setOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
-                </SheetTrigger>
-
-                {/* Adaptive narrow sheet; box-border avoids clipping from border width */}
-                <SheetContent side="right" className="w-[min(92vw,20rem)] box-border p-0">
-                  <div className="flex h-full flex-col">
-                    {/* Body */}
-                    <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3 space-y-1">
-                      {links.map(({ href, label, Icon }) => {
-                        const isActive = active && href === `#${active}`
-                        return (
-                          <a
-                            key={href}
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            className={[
-                              "flex items-center gap-2 rounded px-2 py-2 transition-colors",
-                              "hover:bg-muted/70 dark:hover:bg-muted/40",
-                              isActive ? "bg-primary/10 dark:bg-primary/15" : "",
-                            ].join(" ")}
-                          >
-                            {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
-                            <span className="min-w-0">{label}</span>
-                          </a>
-                        )
-                      })}
-
-                      <Separator className="my-3" />
-                    </div>
-
-                    {/* Footer: resize ONLY the CTA button; add safe-area padding to avoid right-edge cutoffs */}
-                    <div
-                      className="border-t border-border bg-background/95 px-3 py-2"
-                      style={{ paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          className="shrink-0 h-8 w-8"
-                          type="button"
-                          onClick={toggle}
-                          aria-label="Toggle theme"
-                        >
-                          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                        </Button>
-
-                        {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
-                        <Button
-                          className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
-                          type="button"
-                          onClick={() => { setSoonOpen(true); setOpen(false) }}
-                          aria-label="Client Area"
-                        >
+                      {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
+                      <Button asChild className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate">
+                        <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>
                           Client Area
-                        </Button>
-                      </div>
+                        </a>
+                      </Button>
                     </div>
                   </div>
-                </SheetContent>
-              </Sheet>
-            </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
+      </div>
 
-        {/* Coming soon dialog */}
-        <Dialog open={soonOpen} onOpenChange={setSoonOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Client Area</DialogTitle>
-              <DialogDescription>
-                Private sign-in and project portal are on the roadmap.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="text-sm text-muted-foreground">
-              You’ll be able to review proposals, track deployments, and manage billing.
-            </div>
-            <DialogFooter>
-              <Button type="button" onClick={() => setSoonOpen(false)}>Okay</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </header>
-    </TooltipProvider>
+    </header>
   )
 }

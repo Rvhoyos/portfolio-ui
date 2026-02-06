@@ -288,7 +288,7 @@ export function Stack() {
   }, { dependencies: [activeTab], scope: cardRef })
 
   return (
-    <section id="stack" ref={containerRef} className="border-t border-border">
+    <section id="stack" ref={containerRef} className="border-t border-border scroll-mt-28">
       <div className="mx-auto w-full max-w-7xl px-4 py-4 md:py-6">
 
         {/* Header with animated dot */}

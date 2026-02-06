@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ClientDashboardModal } from "@/components/ClientDashboardModal"
 
 import { SiGithub } from "@icons-pack/react-simple-icons"
 
@@ -35,11 +36,11 @@ export function Footer() {
                 Reliable, observable and scalable modern web apps, APIs, and DevOps services.
               </p>
               <div className="mt-2">
-                <Button asChild size="sm" variant="outline">
-                  <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">
+                <ClientDashboardModal>
+                  <Button size="sm" variant="outline">
                     Client Area
-                  </a>
-                </Button>
+                  </Button>
+                </ClientDashboardModal>
               </div>
             </div>
 

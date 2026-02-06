@@ -51,7 +51,7 @@ export function About() {
   }, { scope: containerRef })
 
   return (
-    <div ref={containerRef} className="h-full flex flex-col justify-center">
+    <div id="about" ref={containerRef} className="h-full flex flex-col justify-center scroll-mt-28">
       {/* Heading */}
       <h2 className="about-heading text-2xl md:text-3xl font-semibold tracking-tight">
         <span className="inline-flex items-center gap-3">

@@ -44,7 +44,7 @@ export function Author() {
     }, { scope: cardRef })
 
     return (
-        <Card ref={cardRef} className="author-card border-border/60 bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm overflow-hidden h-full will-change-transform" style={{ perspective: "1000px" }}>
+        <Card id="author" ref={cardRef} className="author-card border-border/60 bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm overflow-hidden h-full will-change-transform scroll-mt-28" style={{ perspective: "1000px" }}>
             <CardContent className="p-6 md:p-8 h-full flex flex-col justify-center">
                 <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                     {/* Avatar */}

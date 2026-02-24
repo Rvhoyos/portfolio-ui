@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Server, LayoutDashboard, Gamepad2, LineChart, Fan } from "lucide-react"
+import { ExternalLink, Server, LayoutDashboard, Gamepad2, LineChart, Fan, Leaf } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import {
   Carousel,
@@ -49,6 +49,12 @@ const projects: Project[] = [
     links: { github: "https://github.com/Rvhoyos/A-DES-model-of-Airport-Passenger-Flow" },
   },
   {
+    title: "MSEcoHaul",
+    desc:
+      "Client rendered SPA using Vite+React. Specialized form handling via Google Sheets API and Cloudflare Worker integration.",
+    links: { live: "https://www.msecohaul.ca" },
+  },
+  {
     title: "Dr0nelia",
     desc:
       "Client rendered SPA using Vite+React. Specialized form handling via Google API and Cloudflare Worker integration. Custom drone aesthetic and animations.",
@@ -63,6 +69,7 @@ function pickIcon(title: string) {
   if (/quackedmod/i.test(title)) return Gamepad2
   if (/smith\s*falls|simulator|flow/i.test(title)) return LineChart
   if (/dr0nelia/i.test(title)) return Fan
+  if (/msecohaul/i.test(title)) return Leaf
   return LayoutDashboard
 }
 
@@ -72,6 +79,7 @@ function monogram(title: string) {
   if (/quackedmod/i.test(title)) return "QM"
   if (/smith\s*falls|simulator|flow/i.test(title)) return "SFA"
   if (/dr0nelia/i.test(title)) return "DR0"
+  if (/msecohaul/i.test(title)) return "MSE"
   return "APP"
 }
 

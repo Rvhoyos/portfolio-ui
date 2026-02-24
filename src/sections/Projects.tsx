@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Server, LayoutDashboard, Gamepad2, LineChart, Fan, Leaf } from "lucide-react"
+import { ExternalLink, LayoutDashboard, Gamepad2, LineChart, Fan, Leaf } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import {
   Carousel,
@@ -26,20 +26,15 @@ type Project = {
 
 const projects: Project[] = [
   {
-    title: "Portfolio API",
-    desc: "Spring Boot 3 (Java 25) service that powers the site. PostgreSQL with Flyway migrations.",
-    links: { github: "https://github.com/rvhoyos/portfolio-api" },
-  },
-  {
     title: "Portfolio UI",
     desc:
-      "React + Vite + Tailwind + shadcn/ui. Client rendered SPA Served via nginx/Caddy, simple App Shell, and fast CI promotions to staging and production.",
+      "React + Vite + Tailwind + shadcn/ui. Client rendered SPA served via nginx/Caddy, Cloudflare Worker for form handling, and fast CI promotions to staging and production.",
     links: { github: "https://github.com/rvhoyos/portfolio-ui" },
   },
   {
     title: "QuackedMod",
     desc:
-      "Cross-platform Minecraft mod using Architectury + GeckoLib 5 with a custom Duck entity and bespoke animations. Public releases on major modding platforms (~400 downloads to date).",
+      "Cross-platform Minecraft mod using a standard multi-loader setup with Gradle + GeckoLib 5 with a custom Duck entity and bespoke animations. Public releases on major modding platforms (~400 downloads to date).",
     links: { github: "https://github.com/rvhoyos/QuackedMod" },
   },
   {
@@ -64,7 +59,6 @@ const projects: Project[] = [
 
 /* ---------- helpers ---------- */
 function pickIcon(title: string) {
-  if (/portfolio api/i.test(title)) return Server
   if (/portfolio ui/i.test(title)) return LayoutDashboard
   if (/quackedmod/i.test(title)) return Gamepad2
   if (/smith\s*falls|simulator|flow/i.test(title)) return LineChart
@@ -74,7 +68,6 @@ function pickIcon(title: string) {
 }
 
 function monogram(title: string) {
-  if (/portfolio api/i.test(title)) return "API"
   if (/portfolio ui/i.test(title)) return "UI"
   if (/quackedmod/i.test(title)) return "QM"
   if (/smith\s*falls|simulator|flow/i.test(title)) return "SFA"

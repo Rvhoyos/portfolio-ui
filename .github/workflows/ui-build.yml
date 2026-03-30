@@ -10,6 +10,9 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: [self-hosted, Linux, X64, ui]
+    environment:
+      name: ${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+      url: ${{ github.ref_name == 'main' && 'https://raulhoyos.com' || 'https://staging.raulhoyos.com' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

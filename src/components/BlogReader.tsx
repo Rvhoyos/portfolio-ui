@@ -7,9 +7,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { CalendarDays, User } from "lucide-react"
+import type { BlogPost } from "@/lib/blog"
 
 interface BlogReaderProps {
-    post: any | null
+    post: BlogPost | null
     isOpen: boolean
     onClose: () => void
 }

@@ -1,8 +1,5 @@
 import { useRef, useEffect } from "react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { gsap } from "@/lib/gsap"
 
 /**
  * Interactive gradient orb background that shifts with scroll position.

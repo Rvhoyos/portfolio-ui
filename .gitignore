@@ -25,3 +25,6 @@ dist-ssr
 
 # dev-only envs
 .env*.local
+
+# Claude Code
+CLAUDE.md

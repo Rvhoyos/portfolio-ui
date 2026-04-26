@@ -242,17 +242,14 @@ export function Header() {
                         <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                       </Button>
 
-                      {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
-                      <Button asChild className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate">
-                        <ClientDashboardModal>
-                          <Button
-                            className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
-                            onClick={() => setOpen(false)}
-                          >
-                            Client Area
-                          </Button>
-                        </ClientDashboardModal>
-                      </Button>
+                      <ClientDashboardModal>
+                        <Button
+                          className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
+                          onClick={() => setOpen(false)}
+                        >
+                          Client Area
+                        </Button>
+                      </ClientDashboardModal>
                     </div>
                   </div>
                 </div>

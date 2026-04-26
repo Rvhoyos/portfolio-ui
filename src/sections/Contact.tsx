@@ -6,11 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Send, CheckCircle2, MessageSquare, ShoppingBag } from "lucide-react"
-import gsap from "gsap"
-import { useGSAP } from "@gsap/react"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { gsap, useGSAP } from "@/lib/gsap"
 
 const API_ENDPOINT = "https://portfolioform.raultheta.workers.dev"
 const MIN_T_MS = 1500

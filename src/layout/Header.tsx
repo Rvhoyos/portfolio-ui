@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button"
 import {
   NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink,
 } from "@/components/ui/navigation-menu"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
-import { Separator } from "@/components/ui/separator"
 import {
   Sun, Moon, Info, Boxes, LayoutDashboard, Mail
 } from "lucide-react"
@@ -22,20 +20,30 @@ const links: LinkItem[] = [
 
 function useScrollInfo() {
   const [scrolled, setScrolled] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const progressRef = useRef<HTMLDivElement>(null)
+  const scrolledRef = useRef(false)
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || document.documentElement.scrollTop || 0
-      setScrolled(y > 8)
+      // Update progress bar via DOM directly to avoid re-renders
       const doc = document.documentElement
       const h = doc.scrollHeight - doc.clientHeight
-      setProgress(h > 0 ? Math.min(1, Math.max(0, y / h)) : 0)
+      const p = h > 0 ? Math.min(1, Math.max(0, y / h)) : 0
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${p})`
+      }
+      // Only trigger re-render when scrolled state actually changes
+      const nowScrolled = y > 8
+      if (nowScrolled !== scrolledRef.current) {
+        scrolledRef.current = nowScrolled
+        setScrolled(nowScrolled)
+      }
     }
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
-  return { scrolled, progress }
+  return { scrolled, progressRef }
 }
 
 function useTheme() {
@@ -111,157 +119,161 @@ const SECTION_IDS = ["author", "about", "stack", "projects", "contact"]
 
 export function Header() {
   const [open, setOpen] = useState(false)
-  const { scrolled, progress } = useScrollInfo()
+  const { scrolled, progressRef } = useScrollInfo()
   const { toggle } = useTheme()
   const active = useActiveSection(SECTION_IDS)
 
-  return (
-    <header className="sticky top-0 z-50">
-      {/* progress bar */}
-      <div
-        aria-hidden
-        className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
-        style={{ transform: `scaleX(${progress})` }}
-      />
+  // Escape key closes mobile overlay
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [open])
 
-      {/* glass header */}
-      <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  return (
+    <>
+      <header className="sticky top-0 z-50">
+        {/* progress bar */}
         <div
+          ref={progressRef}
           aria-hidden
-          className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"
-            }`}
+          className="pointer-events-none h-0.5 w-full origin-left bg-primary/50"
+          style={{ transform: "scaleX(0)" }}
         />
 
-        <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
-          <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
-            <span
-              className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
-                         group-hover:bg-gradient-to-r group-hover:from-foreground group-hover:to-primary/80
-                         group-hover:bg-clip-text group-hover:text-transparent"
-            >
-              Raul Hoyos
-            </span>
-          </a>
+        {/* glass header */}
+        <div className="relative border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div
+            aria-hidden
+            className={`absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"
+              }`}
+          />
 
-          {/* Desktop nav */}
-          <nav className="ml-auto hidden md:block">
-            <NavigationMenu>
-              <NavigationMenuList>
-                {links.map((l) => {
-                  const isActive = active && l.href === `#${active}`
-                  return (
-                    <NavigationMenuItem key={l.href}>
-                      <NavigationMenuLink
-                        href={l.href}
-                        aria-current={isActive ? "page" : undefined}
-                        className={[
-                          "relative rounded-full px-2 py-1.5 text-sm transition-colors",
-                          isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
-                          "hover:text-foreground",
-                        ].join(" ")}
-                      >
-                        {l.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  )
-                })}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </nav>
+          <div className="mx-auto flex h-12 w-full max-w-7xl items-center gap-2 px-4">
+            <a href="#" className="group font-semibold tracking-tight text-sm md:text-base transition-all">
+              <span
+                className="inline-block transition-all duration-200 group-hover:-translate-y-[1.5px]
+                           group-hover:bg-gradient-to-r group-hover:from-foreground group-hover:to-primary/80
+                           group-hover:bg-clip-text group-hover:text-transparent"
+              >
+                Raul Hoyos
+              </span>
+            </a>
 
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-2">
-            <Button
-              size="icon"
-              variant="ghost"
-              type="button"
-              aria-label="Toggle theme"
-              onClick={toggle}
-              className="h-8 w-8"
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-
-            <ClientDashboardModal>
-              <Button size="sm">
-                Client Area
-              </Button>
-            </ClientDashboardModal>
-          </div>
-
-          {/* Mobile nav */}
-          <div className="ml-auto md:hidden">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
-              </SheetTrigger>
-
-              {/* Adaptive narrow sheet; box-border avoids clipping from border width */}
-              <SheetContent side="right" className="w-[min(92vw,20rem)] box-border p-0">
-                <div className="flex h-full flex-col">
-                  {/* Body */}
-                  <div className="flex-1 overflow-y-auto px-3 pt-2 pb-3 space-y-1">
-                    {links.map(({ href, label, Icon }) => {
-                      const isActive = active && href === `#${active}`
-                      return (
-                        <a
-                          key={href}
-                          href={href}
-                          onClick={() => setOpen(false)}
+            {/* Desktop nav */}
+            <nav className="ml-auto hidden md:block">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {links.map((l) => {
+                    const isActive = active && l.href === `#${active}`
+                    return (
+                      <NavigationMenuItem key={l.href}>
+                        <NavigationMenuLink
+                          href={l.href}
+                          aria-current={isActive ? "page" : undefined}
                           className={[
-                            "flex items-center gap-2 rounded px-2 py-2 transition-colors",
-                            "hover:bg-muted/70 dark:hover:bg-muted/40",
-                            isActive ? "bg-primary/10 dark:bg-primary/15" : "",
+                            "relative rounded-full px-2 py-1.5 text-sm transition-colors",
+                            isActive ? "bg-primary/10 text-foreground dark:bg-primary/15" : "text-foreground/80",
+                            "hover:text-foreground",
                           ].join(" ")}
                         >
-                          {Icon ? <Icon className="h-4 w-4 opacity-70" aria-hidden /> : null}
-                          <span className="min-w-0">{label}</span>
-                        </a>
-                      )
-                    })}
+                          {l.label}
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    )
+                  })}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </nav>
 
-                    <Separator className="my-3" />
-                  </div>
+            {/* Desktop actions */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                type="button"
+                aria-label="Toggle theme"
+                onClick={toggle}
+                className="h-8 w-8"
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
 
-                  {/* Footer: resize ONLY the CTA button; add safe-area padding to avoid right-edge cutoffs */}
-                  <div
-                    className="border-t border-border bg-background/95 px-3 py-2"
-                    style={{ paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        className="shrink-0 h-8 w-8"
-                        type="button"
-                        onClick={toggle}
-                        aria-label="Toggle theme"
-                      >
-                        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                      </Button>
+              <ClientDashboardModal>
+                <Button size="sm">
+                  Client Area
+                </Button>
+              </ClientDashboardModal>
+            </div>
 
-                      {/* CTA always fits: flex-auto + min-w-0 + tiny text + truncate */}
-                      <Button asChild className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate">
-                        <ClientDashboardModal>
-                          <Button
-                            className="flex-auto min-w-0 h-9 px-3 text-[13px] leading-none truncate"
-                            onClick={() => setOpen(false)}
-                          >
-                            Client Area
-                          </Button>
-                        </ClientDashboardModal>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setOpen(o => !o)}
+              className="ml-auto flex flex-col justify-center gap-[5px] p-2 md:hidden"
+              style={{ position: "relative", zIndex: 100 }}
+              aria-label={open ? "Close menu" : "Open menu"}
+              type="button"
+            >
+              <span className={`block h-[2px] w-5 rounded-full bg-foreground transition-transform duration-300 ${open ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block h-[2px] w-3.5 rounded-full bg-primary transition-opacity duration-300 ${open ? "opacity-0" : "opacity-100"}`} />
+              <span className={`block h-[2px] w-5 rounded-full bg-foreground transition-transform duration-300 ${open ? "-translate-y-[7px] -rotate-45" : ""}`} />
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-    </header>
+      {/* Mobile fullscreen overlay — outside header to avoid backdrop-filter containing block */}
+      <div
+        className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm md:hidden"
+        style={{
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <nav className="flex flex-col items-center gap-6">
+          {links.map(({ href, label, Icon }) => {
+            const isActive = active && href === `#${active}`
+            return (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                className={[
+                  "flex items-center gap-3 text-xl font-medium transition-colors",
+                  isActive ? "text-primary" : "text-foreground/80 hover:text-foreground",
+                ].join(" ")}
+              >
+                {Icon ? <Icon className="h-5 w-5 opacity-60" aria-hidden /> : null}
+                {label}
+              </a>
+            )
+          })}
+        </nav>
+
+        {/* Actions */}
+        <div className="mt-10 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            onClick={toggle}
+            aria-label="Toggle theme"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </Button>
+
+          <ClientDashboardModal>
+            <Button onClick={() => setOpen(false)}>
+              Client Area
+            </Button>
+          </ClientDashboardModal>
+        </div>
+      </div>
+    </>
   )
 }

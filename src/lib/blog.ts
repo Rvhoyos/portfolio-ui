@@ -1,3 +1,14 @@
+import type React from "react"
+
+interface MdxModule {
+    default: React.ComponentType
+    frontmatter?: {
+        title?: string
+        summary?: string
+        publishedAt?: string
+        author?: string
+    }
+}
 
 export interface BlogPost {
     slug: string
@@ -5,7 +16,7 @@ export interface BlogPost {
     summary: string
     publishedAt: string
     author: string
-    content: any // The MDX Content component
+    content: React.ComponentType
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
@@ -16,7 +27,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
     for (const path in modules) {
         // Fetch the module (the MDX file)
-        const mod: any = await modules[path]()
+        const mod = await modules[path]() as MdxModule
 
         // Extract slug from filename (e.g., /src/content/blog/hello-world.mdx -> hello-world)
         const slug = path.split('/').pop()?.replace('.mdx', '') || ''

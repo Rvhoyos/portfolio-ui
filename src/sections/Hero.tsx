@@ -2,11 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { SiGradle } from "@icons-pack/react-simple-icons"
 import { useRef, useEffect, type SVGProps, type ComponentType } from "react"
-import gsap from "gsap"
-import { useGSAP } from "@gsap/react"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { gsap, useGSAP } from "@/lib/gsap"
 
 type Tool = { name: string; src?: string; Icon?: ComponentType<SVGProps<SVGSVGElement>> }
 

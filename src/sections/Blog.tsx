@@ -1,17 +1,13 @@
 import { useRef, useState, useEffect } from "react"
-import { getAllPosts } from "@/lib/blog"
+import { getAllPosts, type BlogPost } from "@/lib/blog"
 import { BlogCarousel } from "@/components/BlogCarousel"
 import { BlogReader } from "@/components/BlogReader"
-import gsap from "gsap"
-import { useGSAP } from "@gsap/react"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { gsap, useGSAP } from "@/lib/gsap"
 
 export function Blog() {
     const sectionRef = useRef<HTMLDivElement>(null)
-    const [posts, setPosts] = useState<any[]>([])
-    const [selectedPost, setSelectedPost] = useState<any | null>(null)
+    const [posts, setPosts] = useState<BlogPost[]>([])
+    const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
 
     useEffect(() => {
         getAllPosts().then(setPosts)

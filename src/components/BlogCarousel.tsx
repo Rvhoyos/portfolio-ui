@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CalendarDays } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import type { BlogPost } from "@/lib/blog"
+import type { EmblaCarouselType } from "embla-carousel"
 
 interface BlogCarouselProps {
-    posts: any[]
-    onPostClick: (post: any) => void
+    posts: BlogPost[]
+    onPostClick: (post: BlogPost) => void
 }
 
 export function BlogCarousel({ posts, onPostClick }: BlogCarouselProps) {
@@ -18,7 +20,7 @@ export function BlogCarousel({ posts, onPostClick }: BlogCarouselProps) {
     const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi])
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi])
 
-    const onSelect = useCallback((api: any) => {
+    const onSelect = useCallback((api: EmblaCarouselType) => {
         setCanScrollPrev(api.canScrollPrev())
         setCanScrollNext(api.canScrollNext())
     }, [])

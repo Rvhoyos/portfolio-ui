@@ -22,20 +22,30 @@ const links: LinkItem[] = [
 
 function useScrollInfo() {
   const [scrolled, setScrolled] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const progressRef = useRef<HTMLDivElement>(null)
+  const scrolledRef = useRef(false)
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY || document.documentElement.scrollTop || 0
-      setScrolled(y > 8)
+      // Update progress bar via DOM directly to avoid re-renders
       const doc = document.documentElement
       const h = doc.scrollHeight - doc.clientHeight
-      setProgress(h > 0 ? Math.min(1, Math.max(0, y / h)) : 0)
+      const p = h > 0 ? Math.min(1, Math.max(0, y / h)) : 0
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${p})`
+      }
+      // Only trigger re-render when scrolled state actually changes
+      const nowScrolled = y > 8
+      if (nowScrolled !== scrolledRef.current) {
+        scrolledRef.current = nowScrolled
+        setScrolled(nowScrolled)
+      }
     }
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
-  return { scrolled, progress }
+  return { scrolled, progressRef }
 }
 
 function useTheme() {
@@ -111,7 +121,7 @@ const SECTION_IDS = ["author", "about", "stack", "projects", "contact"]
 
 export function Header() {
   const [open, setOpen] = useState(false)
-  const { scrolled, progress } = useScrollInfo()
+  const { scrolled, progressRef } = useScrollInfo()
   const { toggle } = useTheme()
   const active = useActiveSection(SECTION_IDS)
 
@@ -119,9 +129,10 @@ export function Header() {
     <header className="sticky top-0 z-50">
       {/* progress bar */}
       <div
+        ref={progressRef}
         aria-hidden
-        className="pointer-events-none h-0.5 w-full origin-left bg-primary/50 transition-transform duration-75"
-        style={{ transform: `scaleX(${progress})` }}
+        className="pointer-events-none h-0.5 w-full origin-left bg-primary/50"
+        style={{ transform: "scaleX(0)" }}
       />
 
       {/* glass header */}
@@ -195,7 +206,7 @@ export function Header() {
           <div className="ml-auto md:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" aria-label="Open navigation">Menu</Button>
+                <Button variant="outline" size="sm" aria-label="Open navigation" className="min-h-[44px] min-w-[44px]">Menu</Button>
               </SheetTrigger>
 
               {/* Adaptive narrow sheet; box-border avoids clipping from border width */}

@@ -299,7 +299,7 @@ export function Projects() {
   }, { scope: containerRef })
 
   return (
-    <section id="projects" className="border-t border-border scroll-mt-28">
+    <section id="projects" className="border-t border-border scroll-mt-28 overflow-hidden">
       <div ref={containerRef} className="relative mx-auto w-full max-w-7xl px-4 pt-4 pb-4 md:pt-6 md:pb-6">
         {/* background polish: faint dots + two blurred glows */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">

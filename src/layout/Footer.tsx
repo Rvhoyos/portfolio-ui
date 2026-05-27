@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ClientDashboardModal } from "@/components/ClientDashboardModal"
+import { AccessibilityModal } from "@/components/AccessibilityModal"
 
 import { SiGithub } from "@icons-pack/react-simple-icons"
 
@@ -123,6 +124,12 @@ export function Footer() {
                   This portfolio is static and uses no cookies. The linked Client Portal requires essential cookies for authentication if you sign in.
                 </TooltipContent>
               </Tooltip>
+
+              <span aria-hidden>•</span>
+
+              <AccessibilityModal>
+                <button type="button" className="hover:text-foreground">Accessibility</button>
+              </AccessibilityModal>
             </div>
           </div>
         </div>

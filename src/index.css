@@ -53,7 +53,7 @@
   --popover-foreground: oklch(0.129 0.042 264.695);
 
   --muted: oklch(0.960 0.010 255.5);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: oklch(0.446 0.043 257.281);
 
   /* EMERALD accents (unchanged) */
   --primary: oklch(.508 .118 165.612);          /* emerald-700 */

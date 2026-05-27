@@ -215,6 +215,8 @@ export function Header() {
               className="ml-auto flex flex-col justify-center gap-[5px] p-2 md:hidden"
               style={{ position: "relative", zIndex: 100 }}
               aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
               type="button"
             >
               <span className={`block h-[2px] w-5 rounded-full bg-foreground transition-transform duration-300 ${open ? "translate-y-[7px] rotate-45" : ""}`} />
@@ -227,6 +229,9 @@ export function Header() {
 
       {/* Mobile fullscreen overlay — outside header to avoid backdrop-filter containing block */}
       <div
+        id="mobile-menu"
+        inert={!open}
+        aria-hidden={!open}
         className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm md:hidden"
         style={{
           opacity: open ? 1 : 0,

@@ -47,8 +47,17 @@ export function BlogCarousel({ posts, onPostClick }: BlogCarouselProps) {
                     {posts.map((post) => (
                         <div className="flex-[0_0_90%] md:flex-[0_0_45%] lg:flex-[0_0_35%] min-w-0" key={post.slug}>
                             <div
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Read article: ${post.title}`}
                                 onClick={() => onPostClick(post)}
-                                className="h-full group/card cursor-pointer"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault()
+                                        onPostClick(post)
+                                    }
+                                }}
+                                className="h-full group/card cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                             >
                                 <Card className="h-full border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
                                     <CardContent className="p-6 md:p-8 flex flex-col h-full z-10">

@@ -28,3 +28,6 @@ dist-ssr
 
 # Claude Code
 CLAUDE.md
+
+# WCAG audit checklist (internal reference, not shipped)
+docs/wcag-checklist.md

@@ -25,7 +25,7 @@ export function ClientDashboardModal({ children }: ClientDashboardModalProps) {
                     <DialogTitle>Client Dashboard & Portal</DialogTitle>
                     <DialogDescription className="pt-2 space-y-2">
                         <p>
-                            Expected launch in <strong>May</strong>.
+                            Expected launch <strong>TBD</strong>.
                         </p>
                         <p>
                             Featuring a custom proposals system with flexible payment plans (Stripe integrated), website templates, shop items, and other Dev/Ops services!

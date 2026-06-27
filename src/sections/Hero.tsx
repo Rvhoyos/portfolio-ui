@@ -3,6 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { SiGradle } from "@icons-pack/react-simple-icons"
 import { useRef, useEffect, type SVGProps, type ComponentType } from "react"
 import { gsap, useGSAP } from "@/lib/gsap"
+import { ClientDashboardModal } from "@/components/ClientDashboardModal"
 
 type Tool = { name: string; src?: string; Icon?: ComponentType<SVGProps<SVGSVGElement>> }
 
@@ -270,9 +271,11 @@ export function Hero() {
 
             {/* CTAs */}
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="hero-cta will-change-transform">
-                <a href="https://clients.raulhoyos.com" target="_blank" rel="noreferrer">Start a project</a>
-              </Button>
+              <ClientDashboardModal>
+                <Button size="lg" className="hero-cta will-change-transform">
+                  Start a project
+                </Button>
+              </ClientDashboardModal>
               <Button asChild variant="outline" size="lg" className="hero-cta will-change-transform">
                 <a href="#contact">Get in touch</a>
               </Button>

@@ -41,7 +41,7 @@ type Project = {
 const projects: Project[] = [
   {
     title: "QuackedSMP",
-    desc: "Server-side Minecraft mod for Fabric and NeoForge: claims, skills, anti-grief, shops and hardcore mode, with an optional browser panel for config, backups and players. Nothing to install on the client.",
+    desc: "A browser admin panel for running a Minecraft server, built into a server modification (mod) for Fabric and NeoForge. It shows live metrics, chat and server logs, and lets an admin manage players, edit settings, take backups and upload files. React front end, served by a web server I wrote in Java, with password login and live updates over WebSockets.",
     visual: { kind: "logo", src: quackedSmpDuck, pixelated: true },
     links: [
       { label: "GitHub", href: "https://github.com/Rvhoyos/QuackedSMP" },
@@ -50,7 +50,7 @@ const projects: Project[] = [
   },
   {
     title: "QuackedMod",
-    desc: "Ducky Quack Pack: ducks for Minecraft on Fabric and NeoForge. Flocks follow a leader, can be tamed with seeds, and fly off to new ground.",
+    desc: "Ducky Quack Pack: a mod (an add-on that changes the game) that adds ducks to Minecraft, for both main mod loaders, Fabric and NeoForge. Flocks follow a leader, can be tamed with seeds, and fly off to new ground.",
     visual: { kind: "photo", src: quackedModDucks, alt: "A flock of yellow Minecraft ducks swimming near a sandy shore" },
     links: [
       { label: "GitHub", href: "https://github.com/Rvhoyos/QuackedMod" },
@@ -59,13 +59,13 @@ const projects: Project[] = [
   },
   {
     title: "QuackedVPS",
-    desc: "A Go command-line tool that sets up a modded Minecraft server and its web layer (panel, live map, HTTPS, firewall) on a fresh Ubuntu or Debian VPS.",
+    desc: "A Go command-line tool that sets up a Minecraft server running mods (add-ons that change the game) and its web layer (admin panel, live map, HTTPS, firewall) on a fresh Ubuntu or Debian VPS.",
     visual: { kind: "icon", Icon: SquareTerminal },
     links: [{ label: "GitHub", href: "https://github.com/Rvhoyos/quackvps" }],
   },
   {
     title: "QuackedMod Wiki",
-    desc: "Website for the mod and server: wiki pages for the ducks, items, recipes and commands, plus a page for the QuackedSMP server with its live status.",
+    desc: "A documentation site for QuackedMod and the QuackedSMP server. Guide pages are written in MDX (Markdown with React components), and the server page shows live status pulled from the server's API. React, TypeScript and Tailwind.",
     visual: { kind: "logo", src: quackedModWiki },
     links: [{ label: "Live", href: "https://quackedmod.wiki" }],
   },
@@ -83,13 +83,13 @@ const projects: Project[] = [
   },
   {
     title: "MSEcoHaul",
-    desc: "Website for an Ottawa waste management company connecting clients with certified recycling partners.",
+    desc: "Landing page for a small Ottawa waste management business that connects clients with certified recycling partners.",
     visual: { kind: "logo", src: msecohaulLogo },
     links: [{ label: "Live", href: "https://www.msecohaul.ca" }],
   },
   {
     title: "Dr0nelia",
-    desc: "Landing page for a drone services company, with a drone that flies between the page sections in sync with scrolling.",
+    desc: "Landing page for a small drone services business, with a drone that flies between the page sections in sync with scrolling.",
     visual: { kind: "logo", src: dr0neliaLogo, invertInDark: true },
     links: [{ label: "Live", href: "https://dr0nelia.ca" }],
   },

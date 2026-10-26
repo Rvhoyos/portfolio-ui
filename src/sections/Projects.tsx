@@ -71,7 +71,7 @@ const projects: Project[] = [
   },
   {
     title: "Portfolio UI",
-    desc: "This site. React, TypeScript and Tailwind with GSAP animation, served by nginx and deployed to staging and production by GitHub Actions.",
+    desc: "This site. React, TypeScript and Tailwind with GSAP animation, served by Caddy and deployed to staging and production by GitHub Actions.",
     visual: { kind: "mark" },
     links: [{ label: "GitHub", href: "https://github.com/Rvhoyos/portfolio-ui" }],
   },

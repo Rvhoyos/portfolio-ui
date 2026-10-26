@@ -53,8 +53,8 @@ export function About() {
           I build <strong className="text-foreground">user-friendly</strong> web apps that are simple to run.
         </p>
         <p className="about-para text-base md:text-lg text-muted-foreground/90 leading-relaxed">
-          <strong className="text-foreground">One day</strong> I'd like to build software for devices that interact
-          with the real world, like the EM survey equipment I work with in the field.
+          <strong className="text-foreground">I'm working towards</strong> building software for devices that interact
+          with the real world, like the EM survey equipment I use in the field.
         </p>
       </div>
     </div>

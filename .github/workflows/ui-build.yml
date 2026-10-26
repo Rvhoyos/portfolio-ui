@@ -1,4 +1,4 @@
-name: UI — Build & Deploy (local runner)
+name: "UI: Build & Deploy (local runner)"
 on:
   push:
     branches: [ staging, main ]

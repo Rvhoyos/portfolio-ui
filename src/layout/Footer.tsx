@@ -30,7 +30,7 @@ export function Footer() {
             <div>
               <div className="text-base font-semibold tracking-tight">Raul Hoyos</div>
               <p className="mt-1 text-sm text-muted-foreground max-w-prose">
-                Reliable, observable and scalable modern web apps, APIs, and DevOps services.
+                User-friendly web apps and the infrastructure that runs them.
               </p>
             </div>
 

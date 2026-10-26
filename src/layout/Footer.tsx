@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ClientDashboardModal } from "@/components/ClientDashboardModal"
-import { AccessibilityModal } from "@/components/AccessibilityModal"
+import { PolicyLinks } from "@/components/PolicyDialogs"
 
 import { SiGithub } from "@icons-pack/react-simple-icons"
 
@@ -21,31 +20,20 @@ export function Footer() {
   return (
     <TooltipProvider>
       <footer className="relative border-t border-border">
-        {/* subtle gradient hairline for polish */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent"
         />
 
         <div className="mx-auto w-full max-w-7xl px-4 py-6">
-          {/* Top: brand + socials (compact) */}
           <div className="grid gap-6 md:grid-cols-2 md:items-center">
-            {/* Brand & Client Area */}
             <div>
               <div className="text-base font-semibold tracking-tight">Raul Hoyos</div>
               <p className="mt-1 text-sm text-muted-foreground max-w-prose">
                 Reliable, observable and scalable modern web apps, APIs, and DevOps services.
               </p>
-              <div className="mt-2">
-                <ClientDashboardModal>
-                  <Button size="sm" variant="outline">
-                    Client Area
-                  </Button>
-                </ClientDashboardModal>
-              </div>
             </div>
 
-            {/* Socials (right-aligned on md+) */}
             <div className="md:justify-self-end">
               <div className="text-sm font-medium text-foreground/90">Find me</div>
               <div className="mt-2 flex items-center gap-1.5">
@@ -90,47 +78,9 @@ export function Footer() {
 
           <Separator className="my-4" />
 
-          {/* Bottom: small print (standard, compact) */}
           <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>© {year} Raul Hoyos. All rights reserved.</span>
-            <div className="flex flex-wrap items-center gap-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a href="/privacy" className="hover:text-foreground">Privacy</a>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs">
-                  I collect the form info you send and basic server logs. I use it to reply and run the site. Logs are kept about 30 to 90 days. Messages retained 12 to 24 months or deleted on request.
-                </TooltipContent>
-              </Tooltip>
-
-              <span aria-hidden>•</span>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a href="/terms" className="hover:text-foreground">Terms</a>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs">
-                  Use the site lawfully. No scraping abuse or attacks. Content is provided as is. Liability is limited as allowed by law. Ontario Canada governs.
-                </TooltipContent>
-              </Tooltip>
-
-              <span aria-hidden>•</span>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a href="/cookies" className="hover:text-foreground">Cookies</a>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs text-xs">
-                  This portfolio is static and uses no cookies. The linked Client Portal requires essential cookies for authentication if you sign in.
-                </TooltipContent>
-              </Tooltip>
-
-              <span aria-hidden>•</span>
-
-              <AccessibilityModal>
-                <button type="button" className="hover:text-foreground">Accessibility</button>
-              </AccessibilityModal>
-            </div>
+            <PolicyLinks />
           </div>
         </div>
 

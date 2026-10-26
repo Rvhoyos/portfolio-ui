@@ -251,7 +251,8 @@ export function Stack() {
       duration: 0.3,
       ease: "power2.out",
       absolute: true,
-      onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }),
+      // Opacity only: Flip positions the absolute columns with transform, so tweening y here would override it
+      onEnter: (els) => gsap.fromTo(els, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }),
       onLeave: (els) => gsap.to(els, { opacity: 0, duration: 0.2 }),
     })
   }, [filter])

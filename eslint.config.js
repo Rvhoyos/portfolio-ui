@@ -12,9 +12,15 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
+    rules: {
+      'react-refresh/only-export-components': [
+        'error',
+        { allowConstantExport: true, allowExportNames: ['buttonVariants', 'navigationMenuTriggerStyle'] },
+      ],
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

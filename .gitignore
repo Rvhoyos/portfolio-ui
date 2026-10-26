@@ -25,9 +25,3 @@ dist-ssr
 
 # dev-only envs
 .env*.local
-
-# Claude Code
-CLAUDE.md
-
-# WCAG audit checklist (internal reference, not shipped)
-docs/wcag-checklist.md

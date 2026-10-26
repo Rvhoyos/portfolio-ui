@@ -1,11 +1,18 @@
 import { useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { gsap, useGSAP } from "@/lib/gsap"
+import headshot from "@/assets/photos/headshot.webp"
+
+const facts = [
+    { label: "Role", value: "Software developer and geophysics technician" },
+    { label: "Education", value: "B.Eng in Software Engineering" },
+    { label: "Focus", value: "Building towards hardware" },
+    { label: "Based in", value: "Ontario, often in remote northern and eastern Canada" },
+]
 
 export function Author() {
     const cardRef = useRef<HTMLDivElement>(null)
 
-    // Card entrance animation
     useGSAP(() => {
         const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
         if (prefersReduced) {
@@ -23,14 +30,12 @@ export function Author() {
             },
         })
 
-        // Phase 1: Avatar with elastic scale
         tl.fromTo(
             ".author-avatar",
             { scale: 0.5, opacity: 0, rotationY: -30 },
             { scale: 1, opacity: 1, rotationY: 0, duration: 0.9, ease: "back.out(1.7)" }
         )
 
-        // Phase 2: Author content with clip-path reveal
         tl.fromTo(
             ".author-content",
             { y: 30, opacity: 0, clipPath: "inset(0 100% 0 0)" },
@@ -42,20 +47,20 @@ export function Author() {
     return (
         <Card id="author" ref={cardRef} className="author-card border-border/60 bg-gradient-to-br from-muted/50 to-muted/20 backdrop-blur-sm overflow-hidden h-full will-change-transform scroll-mt-28" style={{ perspective: "1000px" }}>
             <CardContent className="p-6 md:p-8 h-full flex flex-col justify-center">
-                <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-                    {/* Avatar */}
-                    <div className="author-avatar flex-shrink-0 relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-primary/20 ring-offset-2 ring-offset-background">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+                    <div className="author-avatar relative mx-auto w-36 shrink-0 overflow-hidden rounded-2xl ring-4 ring-primary/20 ring-offset-2 ring-offset-background sm:mx-0">
                         <img
-                            src="/images/headshot.png"
-                            alt="Raul Hoyos"
-                            className="w-full h-full object-cover object-[center_75%] scale-150"
+                            src={headshot}
+                            alt="Raul Hoyos standing on a city street at dusk"
+                            width={269}
+                            height={439}
+                            className="h-auto w-full object-cover"
                         />
-                        <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+                        <div aria-hidden className="absolute inset-0 rounded-2xl border-2 border-primary/20" />
                     </div>
 
-                    {/* Content */}
-                    <div className="author-content text-center sm:text-left">
-                        <h2 className="text-2xl font-semibold tracking-tight mb-3">
+                    <div className="author-content min-w-0">
+                        <h2 className="text-2xl font-semibold tracking-tight mb-4">
                             <span className="inline-flex items-center gap-3">
                                 <span className="relative flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-40" />
@@ -68,19 +73,25 @@ export function Author() {
                             </span>
                         </h2>
 
-                        <p className="text-muted-foreground leading-relaxed">
-                            Software and Electronics enthusiast
-                            <br />
-                            with a passion for all things that compute.
-                            <br />
-                            This obsession began with my first gaming console, a Nintendo 64.
-                        </p>
-                        <p className="text-muted-foreground leading-relaxed mt-4">
-                            The itch continues today as I develop
-                            <br />
-                            and experiment with new technologies.
-                        </p>
+                        <dl className="space-y-2.5">
+                            {facts.map((fact) => (
+                                <div key={fact.label}>
+                                    <dt className="text-xs text-muted-foreground">{fact.label}</dt>
+                                    <dd className="text-sm text-foreground/90">{fact.value}</dd>
+                                </div>
+                            ))}
+                        </dl>
                     </div>
+                </div>
+
+                <div className="author-content mt-6 space-y-3">
+                    <p className="text-balance text-muted-foreground leading-relaxed">
+                        I've been hooked on all things that compute since my first gaming console, a Nintendo 64.
+                    </p>
+                    <p className="text-balance text-muted-foreground leading-relaxed">
+                        These days I travel for field surveys, troubleshooting specialized EM equipment, and I still
+                        develop web apps and open source projects in my free time.
+                    </p>
                 </div>
             </CardContent>
         </Card>

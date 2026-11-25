@@ -58,7 +58,7 @@ const projects: Project[] = [
     ],
   },
   {
-    title: "QuackedVPS",
+    title: "quackvps",
     desc: "A Go command-line tool that sets up a Minecraft server running mods (add-ons that change the game) and its web layer (admin panel, live map, HTTPS, firewall) on a fresh Ubuntu or Debian VPS.",
     visual: { kind: "icon", Icon: SquareTerminal },
     links: [{ label: "GitHub", href: "https://github.com/Rvhoyos/quackvps" }],
